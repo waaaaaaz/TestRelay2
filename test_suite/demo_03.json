@@ -1,0 +1,2546 @@
+{
+  "name": "摩西平台__task冒烟测试",
+  "desc": "1. 创建新的父领域;\n2. 领域下创建意图;\n 3. 创建task; 4. 测试对话",
+  "session_params": {
+    "group_id": "41",
+    "intent_name_weather": "自动化测试天气意图",
+    "weather_utterance_001": "北京今天天气怎么样",
+    "weather_utterance_001_keyword": "北京",
+    "question_city_001": "石家庄",
+    "question_city_002": "南京",
+    "intent_name_beijing_location_food": "北京哪里的东西最好吃",
+    "task_question_001": "望京",
+    "task_question_002": "火锅"
+  },
+  "session_suffix_params": {
+    "group_name": "自动化测试群组",
+    "group_desc": "自动化测试群组描述",
+    "robot_name": "自动化测试机器人",
+    "robot_desc": "自动化测试机器人描述",
+    "category_name": "自动化测试父领域",
+    "sub_category_name": "自动化测试子领域",
+    "default_intent_answer": "自动化测试意图的默认回复",
+    "robot_intent_answer": "今天的天气非常好",
+    "word_dict_beijing_location_name": "bj_loc",
+    "word_dict_beijing_food_name": "bj_food",
+    "intent_beijing_location_food_answer": "这里是北京吃喝意图默认回复答案，看到了我task就出了问题",
+    "task_name": "自动化测试task",
+    "task_desc": "自动化测试task描述"
+  },
+  "tag": [
+    "smoke",
+    "func",
+    "permission",
+    "intent",
+    "words",
+    "robots-management",
+    "category"
+  ],
+  "e2e": [
+    {
+      "desc": "在指定租户下创建群组",
+      "type": "http_request",
+      "request": {
+        "url": "{{http_host}}/moses/user/group/create",
+        "method": "POST",
+        "headers": {
+          "Cookie": "{{cookie}}",
+          "groupId": "{{group_id}}",
+          "tenantId": "{{tenant_id}}"
+        },
+        "payload": {
+          "name": "{{group_name}}",
+          "desc": "{{group_desc}}"
+        }
+      },
+      "dynamic_params": {
+        "group_id": "$.data"
+      },
+      "assert": {
+        "status_code": 200,
+        "check": {
+          "$.code": 200,
+          "$.message": "请求成功",
+          "$.data": "{*IS NOT NULL*}"
+        }
+      },
+      "db_assert": {
+        "$.data": "SELECT * FROM auth_user_resource_rlt WHERE user_id = {{user_id}}"
+      }
+    },
+    {
+      "desc": "在指定租户和群组下创建机器人",
+      "type": "http_request",
+      "request": {
+        "url": "{{http_host}}/moses/robot/save",
+        "method": "POST",
+        "headers": {
+          "Cookie": "{{cookie}}",
+          "groupId": "{{group_id}}",
+          "tenantId": "{{tenant_id}}"
+        },
+        "payload": {
+          "type": "add",
+          "robotLogo": "https://msstest.vip.sankuai.com/v1/mss_3e81ebd1dc354a6c96cbf55b209c6b52/logo/d7ab1c64-0d57-48cd-b425-fa72dbf50e4c.png",
+          "status": 1,
+          "robotName": "{{robot_name}}",
+          "robotDesc": "{{robot_desc}}"
+        }
+      },
+      "dynamic_params": {
+        "robot_id": "$.data.id",
+        "robot_key": "$.data.robotKey"
+      },
+      "assert": {
+        "status_code": 200,
+        "check": {
+          "$.code": 200,
+          "$.message": "请求成功",
+          "$.data.deleted": 0,
+          "$.data.robotDesc": "{{robot_desc}}",
+          "$.data.robotName": "{{robot_name}}",
+          "$.data.status": 1,
+          "$.data.tenantId": "{{tenant_id}}"
+        }
+      }
+    },
+    {
+      "desc": "创建一级私有领域",
+      "type": "http_request",
+      "request": {
+        "url": "{{http_host}}/moses/intent/category/save",
+        "method": "POST",
+        "headers": {
+          "Cookie": "{{cookie}}",
+          "groupId": "{{group_id}}",
+          "tenantId": "{{tenant_id}}"
+        },
+        "payload": {
+          "categoryName": "{{category_name}}",
+          "categoryType": 1,
+          "createMyself": 1,
+          "input": "{{category_name}}",
+          "children": [
+          ],
+          "edit": true,
+          "menu": true,
+          "parentId": 0
+        }
+      },
+      "dynamic_params": {
+        "category_id": "$.data"
+      },
+      "assert": {
+        "statusCode": 200,
+        "check": {
+          "$.code": 200,
+          "$.message": "请求成功",
+          "$.data": "{*IS NOT NULL*}"
+        }
+      }
+    },
+    {
+      "desc": "创建二级私有领域",
+      "type": "http_request",
+      "request": {
+        "url": "{{http_host}}/moses/intent/category/save",
+        "method": "POST",
+        "headers": {
+          "Cookie": "{{cookie}}",
+          "groupId": "{{group_id}}",
+          "tenantId": "{{tenant_id}}"
+        },
+        "payload": {
+          "categoryName": "{{sub_category_name}}",
+          "categoryType": 1,
+          "createMyself": 1,
+          "input": "{{sub_category_name}}",
+          "children": [
+          ],
+          "edit": true,
+          "menu": true,
+          "parentId": "{{category_id}}"
+        }
+      },
+      "dynamic_params": {
+        "sub_category_id": "$.data"
+      },
+      "assert": {
+        "statusCode": 200,
+        "check": {
+          "$.code": 200,
+          "$.message": "请求成功",
+          "$.data": "{*IS NOT NULL*}"
+        }
+      }
+    },
+    {
+      "desc": "创建意图",
+      "type": "http_request",
+      "request": {
+        "url": "{{http_host}}/moses/intent/save",
+        "method": "POST",
+        "headers": {
+          "Cookie": "{{cookie}}",
+          "groupId": "{{group_id}}",
+          "tenantId": "{{tenant_id}}"
+        },
+        "payload": {
+          "intentName": "{{intent_name_weather}}",
+          "intentType": 1,
+          "labels": [
+            {
+              "isNew": true,
+              "required": 1,
+              "wordSlot": "city"
+            }
+          ],
+          "categoryId": "{{sub_category_id}}"
+        }
+      },
+      "dynamic_params": {
+        "intent_id_weather": "$.data"
+      },
+      "assert": {
+        "statusCode": 200,
+        "check": {
+          "$.code": 200,
+          "$.message": "请求成功",
+          "$.data": "{*IS NOT NULL*}"
+        }
+      }
+    },
+    {
+      "desc": "查找意图, 获取词槽ID",
+      "type": "http_request",
+      "request": {
+        "url": "{{http_host}}/moses/intent/find",
+        "method": "POST",
+        "headers": {
+          "Cookie": "{{cookie}}",
+          "groupId": "{{group_id}}",
+          "tenantId": "{{tenant_id}}"
+        },
+        "payload": {
+          "categoryId": "{{sub_category_id}}",
+          "intentType": null,
+          "status": null,
+          "intentName": "{{intent_name_weather}}",
+          "page": 1,
+          "pageSize": 10
+        }
+      },
+      "dynamic_params": {
+        "city_word_slot_id": "$.data.records[0].labels[0].id"
+      },
+      "assert": {
+        "statusCode": 200,
+        "check": {
+          "$.code": 200,
+          "$.message": "请求成功",
+          "$.data.total": 1,
+          "$.data.records[0].categoryId": "{{sub_category_id}}",
+          "$.data.records[0].deleted": 0,
+          "$.data.records[0].id": "{{intent_id_weather}}",
+          "$.data.records[0].intentName": "{{intent_name_weather}}",
+          "$.data.records[0].intentType": 1,
+          "$.data.records[0].status": 0,
+          "$.data.records[0].labels[0].deleted": 0,
+          "$.data.records[0].labels[0].intentId": "{{intent_id_weather}}",
+          "$.data.records[0].labels[0].wordSlot": "city",
+          "$.data.records[0].labels[0].slotAlias": "city"
+        }
+      }
+    },
+    {
+      "desc": "将父领域绑定到机器人",
+      "type": "http_request",
+      "request": {
+        "url": "{{http_host}}/moses/intent/robot/save",
+        "method": "POST",
+        "headers": {
+          "Cookie": "{{cookie}}",
+          "groupId": "{{group_id}}",
+          "tenantId": "{{tenant_id}}"
+        },
+        "payload": {
+          "robotKey": "{{robot_key}}",
+          "categoryIds": [
+            "{{category_id}}"
+          ]
+        }
+      },
+      "dynamic_params": {
+        "default_intent_answer_id": "$.data"
+      },
+      "assert": {
+        "statusCode": 200,
+        "check": {
+          "$.code": 200,
+          "$.message": "请求成功",
+          "$.data": 2
+        }
+      }
+    },
+    {
+      "desc": "创建意图的默认回复",
+      "type": "http_request",
+      "request": {
+        "url": "{{http_host}}/moses/intent/answer/save",
+        "method": "POST",
+        "headers": {
+          "Cookie": "{{cookie}}",
+          "groupId": "{{group_id}}",
+          "tenantId": "{{tenant_id}}"
+        },
+        "payload": {
+          "intentAnswer": "{{default_intent_answer}}",
+          "answerTitle": "回复-1564562000727",
+          "intentId": "{{intent_id_weather}}",
+          "categoryId": "{{sub_category_id}}",
+          "robotKey": "default_robot"
+        }
+      },
+      "dynamic_params": {
+        "default_intent_answer_id": "$.data"
+      },
+      "assert": {
+        "statusCode": 200,
+        "check": {
+          "$.code": 200,
+          "$.message": "请求成功",
+          "$.data": "{*IS NOT NULL*}"
+        }
+      }
+    },
+    {
+      "desc": "创建天气意图下的说法",
+      "type": "http_request",
+      "request": {
+        "url": "{{http_host}}/moses/intent/grammar/save",
+        "method": "POST",
+        "headers": {
+          "Cookie": "{{cookie}}",
+          "groupId": "{{group_id}}",
+          "tenantId": "{{tenant_id}}"
+        },
+        "payload": {
+          "intentId": "{{intent_id_weather}}",
+          "wording": {
+            "grammars": [
+              {
+                "id": null,
+                "utterance": "{{weather_utterance_001}}"
+              }
+            ],
+            "labels": [
+              {
+                "offset": 0,
+                "keyWord": "{{weather_utterance_001_keyword}}",
+                "wordTag": "sys.CITY",
+                "wordTagId": 1,
+                "wordSlotId": "{{city_word_slot_id}}",
+                "wordSlot": "city",
+                "index": 0
+              }
+            ]
+          },
+          "advanced": {
+            "grammars": []
+          }
+        }
+      },
+      "assert": {
+        "statusCode": 200,
+        "check": {
+          "$.code": 200,
+          "$.message": "请求成功",
+          "$.data": "{*IS NOT NULL*}"
+        }
+      }
+    },
+    {
+      "desc": "启动意图",
+      "type": "http_request",
+      "request": {
+        "url": "{{http_host}}/moses/intent/update_status",
+        "method": "POST",
+        "headers": {
+          "Cookie": "{{cookie}}",
+          "groupId": "{{group_id}}",
+          "tenantId": "{{tenant_id}}"
+        },
+        "payload": {
+          "intentIds": [
+            "{{intent_id_weather}}"
+          ],
+          "status": 1
+        }
+      },
+      "assert": {
+        "statusCode": 200,
+        "check": {
+          "$.code": 200,
+          "$.message": "请求成功",
+          "$.data": "{*IS NOT NULL*}"
+        }
+      }
+    },
+    {
+      "desc": "等待10秒钟",
+      "type": "wait",
+      "duration": 1000
+    },
+    {
+      "desc": "对话中测试默认回复",
+      "type": "http_request",
+      "request": {
+        "url": "{{http_host}}/api/v2/dm/trigger",
+        "method": "POST",
+        "headers": {
+          "Cookie": "{{cookie}}",
+          "groupId": "{{group_id}}",
+          "tenantId": "{{tenant_id}}"
+        },
+        "payload": {
+          "version": "1.0.0",
+          "query": "{{question_city_001}}今天天气怎么样",
+          "sessionId": "ccea6bb0-b388-11e9-a8f6-8d81c100c97e",
+          "messageId": "d660c0e0-b388-11e9-a8f6-8d81c100c97e",
+          "messageType": "TEXT",
+          "appInfo": {
+            "robotKey": "{{robot_key}}"
+          },
+          "userInfo": {
+            "userId": "0"
+          }
+        }
+      },
+      "assert": {
+        "statusCode": 200,
+        "check": {
+          "$.code": 200,
+          "$.message": "请求成功",
+          "$.data.dmResult[0].solution": "{{default_intent_answer}}",
+          "$.data.query": "{{question_city_001}}今天天气怎么样",
+          "$.data.dmResult[0].spokenText": "{{default_intent_answer}}",
+          "$.data.nluResult[0].dialogActs[0].slots[0].slotName": "city",
+          "$.data.nluResult[0].dialogActs[0].slots[0].slotValues[0].value": "{{question_city_001}}"
+        }
+      }
+    },
+    {
+      "desc": "换个词槽关键词, 对话中测试默认回复",
+      "type": "http_request",
+      "request": {
+        "url": "{{http_host}}/api/v2/dm/trigger",
+        "method": "POST",
+        "headers": {
+          "Cookie": "{{cookie}}",
+          "groupId": "{{group_id}}",
+          "tenantId": "{{tenant_id}}"
+        },
+        "payload": {
+          "version": "1.0.0",
+          "query": "{{question_city_002}}今天天气怎么样",
+          "sessionId": "ccea6bb0-b388-11e9-a8f6-8d81c100c97e",
+          "messageId": "d660c0e0-b388-11e9-a8f6-8d81c100c97e",
+          "messageType": "TEXT",
+          "appInfo": {
+            "robotKey": "{{robot_key}}"
+          },
+          "userInfo": {
+            "userId": "0"
+          }
+        }
+      },
+      "assert": {
+        "statusCode": 200,
+        "check": {
+          "$.code": 200,
+          "$.message": "请求成功",
+          "$.data.dmResult[0].solution": "{{default_intent_answer}}",
+          "$.data.dmResult[0].spokenText": "{{default_intent_answer}}",
+          "$.data.nluResult[0].actType": 1,
+          "$.data.nluResult[0].dialogActs[0].act": "{{intent_id_weather}}_{{intent_name_weather}}",
+          "$.data.nluResult[0].dialogActs[0].slots[0].slotName": "city",
+          "$.data.nluResult[0].dialogActs[0].slots[0].slotValues[0].value": "{{question_city_002}}"
+        }
+      }
+    },
+    {
+      "desc": "创建机器人的意图回复",
+      "type": "http_request",
+      "request": {
+        "url": "{{http_host}}/moses/intent/answer/save",
+        "method": "POST",
+        "headers": {
+          "Cookie": "{{cookie}}",
+          "groupId": "{{group_id}}",
+          "tenantId": "{{tenant_id}}"
+        },
+        "payload": {
+          "intentAnswer": "${city}{{robot_intent_answer}}",
+          "answerTitle": "回复-1564563312830",
+          "intentId": "{{intent_id_weather}}",
+          "categoryId": "{{sub_category_id}}",
+          "robotKey": "{{robot_key}}"
+        }
+      },
+      "dynamic_params": {
+        "robot_intent_answer_id": "$.data"
+      },
+      "assert": {
+        "statusCode": 200,
+        "check": {
+          "$.code": 200,
+          "$.message": "请求成功",
+          "$.data": "{*IS NOT NULL*}"
+        }
+      }
+    },
+    {
+      "desc": "对话中测试机器人回复",
+      "type": "http_request",
+      "request": {
+        "url": "{{http_host}}/api/v2/dm/trigger",
+        "method": "POST",
+        "headers": {
+          "Cookie": "{{cookie}}",
+          "groupId": "{{group_id}}",
+          "tenantId": "{{tenant_id}}"
+        },
+        "payload": {
+          "version": "1.0.0",
+          "query": "{{question_city_001}}今天天气怎么样",
+          "sessionId": "ccea6bb0-b388-11e9-a8f6-8d81c100c97e",
+          "messageId": "d660c0e0-b388-11e9-a8f6-8d81c100c97e",
+          "messageType": "TEXT",
+          "appInfo": {
+            "robotKey": "{{robot_key}}"
+          },
+          "userInfo": {
+            "userId": "0"
+          }
+        }
+      },
+      "assert": {
+        "statusCode": 200,
+        "check": {
+          "$.code": 200,
+          "$.message": "请求成功",
+          "$.data.dmResult[0].solution": "{{question_city_001}}{{robot_intent_answer}}",
+          "$.data.dmResult[0].spokenText": "{{question_city_001}}{{robot_intent_answer}}",
+          "$.data.query": "{{question_city_001}}今天天气怎么样",
+          "$.data.nluResult[0].actType": 1,
+          "$.data.nluResult[0].dialogActs[0].act": "{{intent_id_weather}}_{{intent_name_weather}}",
+          "$.data.nluResult[0].dialogActs[0].slots[0].slotName": "city",
+          "$.data.nluResult[0].dialogActs[0].slots[0].slotValues[0].value": "{{question_city_001}}"
+        }
+      }
+    },
+    {
+      "desc": "换个词槽关键词,对话中测试机器人回复",
+      "type": "http_request",
+      "request": {
+        "url": "{{http_host}}/api/v2/dm/trigger",
+        "method": "POST",
+        "headers": {
+          "Cookie": "{{cookie}}",
+          "groupId": "{{group_id}}",
+          "tenantId": "{{tenant_id}}"
+        },
+        "payload": {
+          "version": "1.0.0",
+          "query": "{{question_city_002}}今天天气怎么样",
+          "sessionId": "ccea6bb0-b388-11e9-a8f6-8d81c100c97e",
+          "messageId": "d660c0e0-b388-11e9-a8f6-8d81c100c97e",
+          "messageType": "TEXT",
+          "appInfo": {
+            "robotKey": "{{robot_key}}"
+          },
+          "userInfo": {
+            "userId": "0"
+          }
+        }
+      },
+      "assert": {
+        "statusCode": 200,
+        "check": {
+          "$.code": 200,
+          "$.message": "请求成功",
+          "$.data.dmResult[0].solution": "{{question_city_002}}{{robot_intent_answer}}",
+          "$.data.dmResult[0].spokenText": "{{question_city_002}}{{robot_intent_answer}}",
+          "$.data.nluResult[0].dialogActs[0].act": "{{intent_id_weather}}_{{intent_name_weather}}",
+          "$.data.nluResult[0].dialogActs[0].slots[0].slotName": "city",
+          "$.data.nluResult[0].dialogActs[0].slots[0].slotValues[0].value": "{{question_city_002}}"
+        }
+      }
+    },
+    {
+      "desc": "创建词表 beijing location",
+      "type": "http_request",
+      "request": {
+        "url": "{{http_host}}/moses/word/save",
+        "method": "POST",
+        "headers": {
+          "Cookie": "{{cookie}}",
+          "groupId": "{{group_id}}",
+          "tenantId": "{{tenant_id}}"
+        },
+        "payload": {
+          "typeName": "user.{{word_dict_beijing_location_name}}",
+          "groups": [
+            {
+              "norm": "中关村",
+              "words": []
+            },
+            {
+              "norm": "五道口",
+              "words": [
+                "宇宙中心"
+              ]
+            },
+            {
+              "norm": "望京",
+              "words": []
+            },
+            {
+              "norm": "西二旗",
+              "words": [
+                "后场村"
+              ]
+            }
+          ]
+        }
+      },
+      "dynamic_params": {
+        "word_dict_beijing_location_id": "$.data"
+      },
+      "assert": {
+        "statusCode": 200,
+        "check": {
+          "$.code": 200,
+          "$.message": "请求成功",
+          "$.data": "{*IS NOT NULL*}"
+        }
+      }
+    },
+    {
+      "desc": "创建词表 beijing food",
+      "type": "http_request",
+      "request": {
+        "url": "{{http_host}}/moses/word/save",
+        "method": "POST",
+        "headers": {
+          "Cookie": "{{cookie}}",
+          "groupId": "{{group_id}}",
+          "tenantId": "{{tenant_id}}"
+        },
+        "payload": {
+          "typeName": "user.{{word_dict_beijing_food_name}}",
+          "groups": [
+            {
+              "norm": "火锅",
+              "words": [
+                "麻辣火锅",
+                "重庆火锅",
+                "四川火锅"
+              ]
+            },
+            {
+              "norm": "汉堡",
+              "words": [
+                "肯德基",
+                "麦当劳",
+                "汉堡王"
+              ]
+            },
+            {
+              "norm": "烧烤",
+              "words": [
+                "望京小腰",
+                "新疆烧烤",
+                "韩国烧烤"
+              ]
+            },
+            {
+              "norm": "日料",
+              "words": [
+                "日本料理"
+              ]
+            }
+          ]
+        }
+      },
+      "dynamic_params": {
+        "word_dict_beijing_food_id": "$.data"
+      },
+      "assert": {
+        "statusCode": 200,
+        "check": {
+          "$.code": 200,
+          "$.message": "请求成功",
+          "$.data": "{*IS NOT NULL*}"
+        }
+      }
+    },
+    {
+      "desc": "创建task用的意图",
+      "type": "http_request",
+      "request": {
+        "url": "{{http_host}}/moses/intent/save",
+        "method": "POST",
+        "headers": {
+          "Cookie": "{{cookie}}",
+          "groupId": "{{group_id}}",
+          "tenantId": "{{tenant_id}}"
+        },
+        "payload": {
+          "intentName": "{{intent_name_beijing_location_food}}",
+          "intentType": 1,
+          "labels": [],
+          "categoryId": "{{category_id}}"
+        }
+      },
+      "dynamic_params": {
+        "intent_id_beijing_location_food": "$.data"
+      },
+      "assert": {
+        "statusCode": 200,
+        "check": {
+          "$.code": 200,
+          "$.message": "请求成功",
+          "$.data": "{*IS NOT NULL*}"
+        }
+      }
+    },
+    {
+      "desc": "创建task用意图的默认回复",
+      "type": "http_request",
+      "request": {
+        "url": "{{http_host}}/moses/intent/answer/save",
+        "method": "POST",
+        "headers": {
+          "Cookie": "{{cookie}}",
+          "groupId": "{{group_id}}",
+          "tenantId": "{{tenant_id}}"
+        },
+        "payload": {
+          "intentAnswer": "{{intent_beijing_location_food_answer}}",
+          "answerTitle": "回复-1564562000799",
+          "intentId": "{{intent_id_beijing_location_food}}",
+          "categoryId": "{{category_id}}",
+          "robotKey": "default_robot"
+        }
+      },
+      "dynamic_params": {
+        "intent_beijing_location_food_answer_id": "$.data"
+      },
+      "assert": {
+        "statusCode": 200,
+        "check": {
+          "$.code": 200,
+          "$.message": "请求成功",
+          "$.data": "{*IS NOT NULL*}"
+        }
+      }
+    },
+    {
+      "desc": "创建task用意图下的说法",
+      "type": "http_request",
+      "request": {
+        "url": "{{http_host}}/moses/intent/grammar/save",
+        "method": "POST",
+        "headers": {
+          "Cookie": "{{cookie}}",
+          "groupId": "{{group_id}}",
+          "tenantId": "{{tenant_id}}"
+        },
+        "payload": {
+          "intentId": "{{intent_id_beijing_location_food}}",
+          "wording": {
+            "grammars": [
+              {
+                "id": null,
+                "utterance": "{{intent_name_beijing_location_food}}"
+              }
+            ],
+            "labels": []
+          },
+          "advanced": {
+            "grammars": []
+          }
+        }
+      },
+      "assert": {
+        "statusCode": 200,
+        "check": {
+          "$.code": 200,
+          "$.message": "请求成功",
+          "$.data": "{*IS NOT NULL*}"
+        }
+      }
+    },
+    {
+      "desc": "启动task用的意图",
+      "type": "http_request",
+      "request": {
+        "url": "{{http_host}}/moses/intent/update_status",
+        "method": "POST",
+        "headers": {
+          "Cookie": "{{cookie}}",
+          "groupId": "{{group_id}}",
+          "tenantId": "{{tenant_id}}"
+        },
+        "payload": {
+          "intentIds": [
+            "{{intent_id_beijing_location_food}}"
+          ],
+          "status": 1
+        }
+      },
+      "assert": {
+        "statusCode": 200,
+        "check": {
+          "$.code": 200,
+          "$.message": "请求成功",
+          "$.data": "{*IS NOT NULL*}"
+        }
+      }
+    },
+    {
+      "desc": "创建多轮对话",
+      "type": "http_request",
+      "request": {
+        "url": "{{http_host}}/moses/taskbot/process/create",
+        "method": "POST",
+        "headers": {
+          "Cookie": "{{cookie}}",
+          "groupId": "{{group_id}}",
+          "tenantId": "{{tenant_id}}"
+        },
+        "payload": {
+          "taskName": "{{task_name}}",
+          "remark": "{{task_desc}}",
+          "robotKey": "{{robot_key}}"
+        }
+      },
+      "dynamic_params": {
+        "task_id": "$.data"
+      },
+      "assert": {
+        "statusCode": 200,
+        "check": {
+          "$.code": 200,
+          "$.message": "请求成功",
+          "$.data": "{*IS NOT NULL*}"
+        }
+      }
+    },
+    {
+      "desc": "新建task版本",
+      "type": "http_request",
+      "request": {
+        "url": "{{http_host}}/moses/taskbot/process/version/create",
+        "method": "POST",
+        "headers": {
+          "Cookie": "{{cookie}}",
+          "groupId": "{{group_id}}",
+          "tenantId": "{{tenant_id}}"
+        },
+        "payload": {
+          "taskId": "{{task_id}}"
+        }
+      },
+      "dynamic_params": {
+        "task_version_id": "$.data.id"
+      },
+      "assert": {
+        "statusCode": 200,
+        "check": {
+          "$.code": 200,
+          "$.message": "请求成功",
+          "$.data": "{*IS NOT NULL*}"
+        }
+      }
+    },
+    {
+      "desc": "验证task配置",
+      "type": "http_request",
+      "request": {
+        "url": "{{http_host}}/moses/taskbot/process/version/valid",
+        "method": "POST",
+        "headers": {
+          "Cookie": "{{cookie}}",
+          "groupId": "{{group_id}}",
+          "tenantId": "{{tenant_id}}"
+        },
+        "payload": {
+          "id": "{{task_version_id}}",
+          "bpmnXml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<bpmn2:definitions xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:bpmn2=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" id=\"sample-diagram\" targetNamespace=\"http://bpmn.io/schema/bpmn\" xsi:schemaLocation=\"http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd\">\n  <bpmn2:process id=\"Process_1\" isExecutable=\"false\">\n    <bpmn2:startEvent id=\"StartEvent_1\">\n      <bpmn2:outgoing>SequenceFlow_05b7q6m</bpmn2:outgoing>\n    </bpmn2:startEvent>\n    <bpmn2:callActivity id=\"CallActivity_0qexy09\" name=\"填槽节点\" calledElement=\"slot\">\n      <bpmn2:incoming>SequenceFlow_05b7q6m</bpmn2:incoming>\n      <bpmn2:outgoing>SequenceFlow_13dyqes</bpmn2:outgoing>\n      <bpmn2:outgoing>SequenceFlow_0ip4cky</bpmn2:outgoing>\n    </bpmn2:callActivity>\n    <bpmn2:sequenceFlow id=\"SequenceFlow_05b7q6m\" sourceRef=\"StartEvent_1\" targetRef=\"CallActivity_0qexy09\" />\n    <bpmn2:callActivity id=\"CallActivity_18pu2c5\" name=\"填槽节点\" calledElement=\"slot\">\n      <bpmn2:incoming>SequenceFlow_13dyqes</bpmn2:incoming>\n      <bpmn2:outgoing>SequenceFlow_17t6oci</bpmn2:outgoing>\n      <bpmn2:outgoing>SequenceFlow_0dqdm91</bpmn2:outgoing>\n    </bpmn2:callActivity>\n    <bpmn2:sequenceFlow id=\"SequenceFlow_13dyqes\" sourceRef=\"CallActivity_0qexy09\" targetRef=\"CallActivity_18pu2c5\" />\n    <bpmn2:callActivity id=\"CallActivity_0961ym7\" name=\"第一次兜底回复\" calledElement=\"answer\">\n      <bpmn2:incoming>SequenceFlow_0ip4cky</bpmn2:incoming>\n    </bpmn2:callActivity>\n    <bpmn2:sequenceFlow id=\"SequenceFlow_0ip4cky\" sourceRef=\"CallActivity_0qexy09\" targetRef=\"CallActivity_0961ym7\" />\n    <bpmn2:callActivity id=\"CallActivity_1f9dkrq\" name=\"回复节点\" calledElement=\"answer\">\n      <bpmn2:incoming>SequenceFlow_17t6oci</bpmn2:incoming>\n    </bpmn2:callActivity>\n    <bpmn2:sequenceFlow id=\"SequenceFlow_17t6oci\" sourceRef=\"CallActivity_18pu2c5\" targetRef=\"CallActivity_1f9dkrq\" />\n    <bpmn2:callActivity id=\"CallActivity_0bkntc8\" name=\"第二次兜底回复\" calledElement=\"answer\">\n      <bpmn2:incoming>SequenceFlow_0dqdm91</bpmn2:incoming>\n    </bpmn2:callActivity>\n    <bpmn2:sequenceFlow id=\"SequenceFlow_0dqdm91\" sourceRef=\"CallActivity_18pu2c5\" targetRef=\"CallActivity_0bkntc8\" />\n  </bpmn2:process>\n  <bpmndi:BPMNDiagram id=\"BPMNDiagram_1\">\n    <bpmndi:BPMNPlane id=\"BPMNPlane_1\" bpmnElement=\"Process_1\">\n      <bpmndi:BPMNShape id=\"_BPMNShape_StartEvent_2\" bpmnElement=\"StartEvent_1\">\n        <dc:Bounds x=\"200\" y=\"100\" width=\"50\" height=\"50\" />\n        <bpmndi:BPMNLabel>\n          <dc:Bounds x=\"213\" y=\"117\" width=\"22\" height=\"14\" />\n        </bpmndi:BPMNLabel>\n      </bpmndi:BPMNShape>\n      <bpmndi:BPMNShape id=\"CallActivity_0qexy09_di\" bpmnElement=\"CallActivity_0qexy09\">\n        <dc:Bounds x=\"300\" y=\"85\" width=\"110\" height=\"80\" />\n      </bpmndi:BPMNShape>\n      <bpmndi:BPMNEdge id=\"SequenceFlow_05b7q6m_di\" bpmnElement=\"SequenceFlow_05b7q6m\">\n        <di:waypoint x=\"250\" y=\"125\" />\n        <di:waypoint x=\"300\" y=\"125\" />\n      </bpmndi:BPMNEdge>\n      <bpmndi:BPMNShape id=\"CallActivity_18pu2c5_di\" bpmnElement=\"CallActivity_18pu2c5\">\n        <dc:Bounds x=\"460\" y=\"85\" width=\"110\" height=\"80\" />\n      </bpmndi:BPMNShape>\n      <bpmndi:BPMNEdge id=\"SequenceFlow_13dyqes_di\" bpmnElement=\"SequenceFlow_13dyqes\">\n        <di:waypoint x=\"410\" y=\"125\" />\n        <di:waypoint x=\"460\" y=\"125\" />\n      </bpmndi:BPMNEdge>\n      <bpmndi:BPMNShape id=\"CallActivity_0961ym7_di\" bpmnElement=\"CallActivity_0961ym7\">\n        <dc:Bounds x=\"460\" y=\"195\" width=\"110\" height=\"80\" />\n      </bpmndi:BPMNShape>\n      <bpmndi:BPMNEdge id=\"SequenceFlow_0ip4cky_di\" bpmnElement=\"SequenceFlow_0ip4cky\">\n        <di:waypoint x=\"410\" y=\"125\" />\n        <di:waypoint x=\"435\" y=\"125\" />\n        <di:waypoint x=\"435\" y=\"235\" />\n        <di:waypoint x=\"460\" y=\"235\" />\n      </bpmndi:BPMNEdge>\n      <bpmndi:BPMNShape id=\"CallActivity_1f9dkrq_di\" bpmnElement=\"CallActivity_1f9dkrq\">\n        <dc:Bounds x=\"620\" y=\"85\" width=\"110\" height=\"80\" />\n      </bpmndi:BPMNShape>\n      <bpmndi:BPMNEdge id=\"SequenceFlow_17t6oci_di\" bpmnElement=\"SequenceFlow_17t6oci\">\n        <di:waypoint x=\"570\" y=\"125\" />\n        <di:waypoint x=\"620\" y=\"125\" />\n      </bpmndi:BPMNEdge>\n      <bpmndi:BPMNShape id=\"CallActivity_0bkntc8_di\" bpmnElement=\"CallActivity_0bkntc8\">\n        <dc:Bounds x=\"620\" y=\"195\" width=\"110\" height=\"80\" />\n      </bpmndi:BPMNShape>\n      <bpmndi:BPMNEdge id=\"SequenceFlow_0dqdm91_di\" bpmnElement=\"SequenceFlow_0dqdm91\">\n        <di:waypoint x=\"570\" y=\"125\" />\n        <di:waypoint x=\"595\" y=\"125\" />\n        <di:waypoint x=\"595\" y=\"235\" />\n        <di:waypoint x=\"620\" y=\"235\" />\n      </bpmndi:BPMNEdge>\n    </bpmndi:BPMNPlane>\n  </bpmndi:BPMNDiagram>\n</bpmn2:definitions>\n",
+          "bpmnConfig": {
+            "CallActivity_0961ym7": {
+              "type": "answer",
+              "executeSlot": [
+                {
+                  "dying": false,
+                  "text": "你选的地方我不熟悉啊",
+                  "type": "normal"
+                },
+                {
+                  "dying": false,
+                  "text": "你选的地方是${task.地点填槽节点(3b2b2ec0-b406-11e9-a15b-a96df4b9e614)}\n我不太熟悉啊",
+                  "type": "dynamic"
+                }
+              ],
+              "admittance": {
+                "or": [
+                  {
+                    "and": [
+                      {
+                        "operate": "",
+                        "param": {
+                          "label": "",
+                          "value": ""
+                        },
+                        "valueLabel": "",
+                        "paramLeft": "",
+                        "api": {
+                          "label": "",
+                          "value": ""
+                        },
+                        "value": ""
+                      }
+                    ]
+                  }
+                ],
+                "priority": "",
+                "defaultEnable": "reveal"
+              }
+            },
+            "CallActivity_0qexy09": {
+              "type": "slot",
+              "executeSlot": [
+                {
+                  "isRequired": "1",
+                  "clarify": {
+                    "failText": "你选的不是北京的地方",
+                    "clarifyOption": [
+                      {
+                        "expand": true,
+                        "randomText": [
+                          {
+                            "text": "望京，中关村和五道口，这三个地方都不错。你住得离哪里比较近"
+                          }
+                        ]
+                      },
+                      {
+                        "expand": true,
+                        "randomText": [
+                          {
+                            "text": "望京，中关村和五道口，三选一，我再进一步帮你推荐"
+                          }
+                        ]
+                      },
+                      {
+                        "expand": true,
+                        "randomText": [
+                          {
+                            "text": "望京，中关村 or 五道口"
+                          }
+                        ]
+                      }
+                    ],
+                    "clarifyNum": 3,
+                    "isEdit": true
+                  },
+                  "name": "地点填槽节点",
+                  "id": "3b2b2ec0-b406-11e9-a15b-a96df4b9e614",
+                  "content": [
+                    {
+                      "expression": {
+                        "text": ""
+                      },
+                      "nlu": {
+                        "paramLeft": "properNoun",
+                        "value": {
+                          "domain": {
+                            "label": "",
+                            "value": ""
+                          },
+                          "noun": {
+                            "label": "user.{{word_dict_beijing_location_name}}",
+                            "value": "{{word_dict_beijing_location_id}}"
+                          },
+                          "slot": {
+                            "label": "",
+                            "value": ""
+                          },
+                          "intent": {
+                            "label": "",
+                            "value": ""
+                          }
+                        }
+                      },
+                      "api": {
+                        "name": {
+                          "label": "",
+                          "value": ""
+                        },
+                        "outParams": {
+                          "label": "",
+                          "value": ""
+                        }
+                      },
+                      "contentType": "nlu"
+                    }
+                  ]
+                }
+              ],
+              "admittance": {
+                "or": [
+                  {
+                    "and": [
+                      {
+                        "operate": "",
+                        "param": {
+                          "label": "",
+                          "value": ""
+                        },
+                        "valueLabel": "",
+                        "paramLeft": "",
+                        "api": {
+                          "label": "",
+                          "value": ""
+                        },
+                        "value": ""
+                      }
+                    ]
+                  }
+                ],
+                "priority": "",
+                "defaultEnable": "custom"
+              }
+            },
+            "CallActivity_1f9dkrq": {
+              "type": "answer",
+              "executeSlot": [
+                {
+                  "dying": false,
+                  "text": "你已经选好了地点和食物，让我来好好想想",
+                  "type": "normal"
+                },
+                {
+                  "dying": false,
+                  "text": "你选的地点是${task.地点填槽节点(3b2b2ec0-b406-11e9-a15b-a96df4b9e614)}\n你选的食物是${task.食物填槽节点(209139f0-b407-11e9-a15b-a96df4b9e614)}",
+                  "type": "dynamic"
+                }
+              ],
+              "admittance": {
+                "or": [
+                  {
+                    "and": [
+                      {
+                        "operate": "eq",
+                        "paramLeft": "slot",
+                        "params2": "",
+                        "slot": {
+                          "isRequired": "1",
+                          "clarify": {
+                            "failText": "你爱吃的这种我可不熟啊",
+                            "clarifyOption": [
+                              {
+                                "expand": true,
+                                "randomText": [
+                                  {
+                                    "text": "火锅和烧烤最棒了，你喜欢哪种"
+                                  }
+                                ]
+                              },
+                              {
+                                "expand": true,
+                                "randomText": [
+                                  {
+                                    "text": "火锅还是烧烤呢"
+                                  }
+                                ]
+                              },
+                              {
+                                "expand": true,
+                                "randomText": [
+                                  {
+                                    "text": "火锅，烧烤，二选一"
+                                  }
+                                ]
+                              }
+                            ],
+                            "clarifyNum": 3,
+                            "isEdit": true
+                          },
+                          "name": "食物填槽节点",
+                          "id": "209139f0-b407-11e9-a15b-a96df4b9e614",
+                          "content": [
+                            {
+                              "expression": {
+                                "text": ""
+                              },
+                              "nlu": {
+                                "paramLeft": "properNoun",
+                                "value": {
+                                  "domain": {
+                                    "label": "",
+                                    "value": ""
+                                  },
+                                  "noun": {
+                                    "label": "user.{{word_dict_beijing_food_name}}",
+                                    "value": "{{word_dict_beijing_food_id}}"
+                                  },
+                                  "slot": {
+                                    "label": "",
+                                    "value": ""
+                                  },
+                                  "intent": {
+                                    "label": "",
+                                    "value": ""
+                                  }
+                                }
+                              },
+                              "api": {
+                                "name": {
+                                  "label": "",
+                                  "value": ""
+                                },
+                                "outParams": {
+                                  "label": "",
+                                  "value": ""
+                                }
+                              },
+                              "contentType": "nlu"
+                            }
+                          ]
+                        },
+                        "value": "火锅",
+                        "params1": ""
+                      }
+                    ]
+                  },
+                  {
+                    "and": [
+                      {
+                        "operate": "eq",
+                        "paramLeft": "slot",
+                        "params2": "",
+                        "slot": {
+                          "isRequired": "1",
+                          "clarify": {
+                            "failText": "你爱吃的这种我可不熟啊",
+                            "clarifyOption": [
+                              {
+                                "expand": true,
+                                "randomText": [
+                                  {
+                                    "text": "火锅和烧烤最棒了，你喜欢哪种"
+                                  }
+                                ]
+                              },
+                              {
+                                "expand": true,
+                                "randomText": [
+                                  {
+                                    "text": "火锅还是烧烤呢"
+                                  }
+                                ]
+                              },
+                              {
+                                "expand": true,
+                                "randomText": [
+                                  {
+                                    "text": "火锅，烧烤，二选一"
+                                  }
+                                ]
+                              }
+                            ],
+                            "clarifyNum": 3,
+                            "isEdit": true
+                          },
+                          "name": "食物填槽节点",
+                          "id": "209139f0-b407-11e9-a15b-a96df4b9e614",
+                          "content": [
+                            {
+                              "expression": {
+                                "text": ""
+                              },
+                              "nlu": {
+                                "paramLeft": "properNoun",
+                                "value": {
+                                  "domain": {
+                                    "label": "",
+                                    "value": ""
+                                  },
+                                  "noun": {
+                                    "label": "user.{{word_dict_beijing_food_name}}",
+                                    "value": "{{word_dict_beijing_food_id}}"
+                                  },
+                                  "slot": {
+                                    "label": "",
+                                    "value": ""
+                                  },
+                                  "intent": {
+                                    "label": "",
+                                    "value": ""
+                                  }
+                                }
+                              },
+                              "api": {
+                                "name": {
+                                  "label": "",
+                                  "value": ""
+                                },
+                                "outParams": {
+                                  "label": "",
+                                  "value": ""
+                                }
+                              },
+                              "contentType": "nlu"
+                            }
+                          ]
+                        },
+                        "value": "烧烤",
+                        "params1": ""
+                      }
+                    ]
+                  }
+                ],
+                "priority": "",
+                "defaultEnable": "custom"
+              }
+            },
+            "CallActivity_18pu2c5": {
+              "type": "slot",
+              "executeSlot": [
+                {
+                  "isRequired": "1",
+                  "clarify": {
+                    "failText": "你选的这个能吃吗",
+                    "clarifyOption": [
+                      {
+                        "expand": true,
+                        "randomText": [
+                          {
+                            "text": "火锅和烧烤最棒了，你喜欢哪种"
+                          }
+                        ]
+                      },
+                      {
+                        "expand": true,
+                        "randomText": [
+                          {
+                            "text": "火锅还是烧烤呢"
+                          }
+                        ]
+                      },
+                      {
+                        "expand": true,
+                        "randomText": [
+                          {
+                            "text": "火锅，烧烤，二选一"
+                          }
+                        ]
+                      }
+                    ],
+                    "clarifyNum": 3,
+                    "isEdit": true
+                  },
+                  "name": "食物填槽节点",
+                  "id": "209139f0-b407-11e9-a15b-a96df4b9e614",
+                  "content": [
+                    {
+                      "expression": {
+                        "text": ""
+                      },
+                      "nlu": {
+                        "paramLeft": "properNoun",
+                        "value": {
+                          "domain": {
+                            "label": "",
+                            "value": ""
+                          },
+                          "noun": {
+                            "label": "user.{{word_dict_beijing_food_name}}",
+                            "value": "{{word_dict_beijing_food_id}}"
+                          },
+                          "slot": {
+                            "label": "",
+                            "value": ""
+                          },
+                          "intent": {
+                            "label": "",
+                            "value": ""
+                          }
+                        }
+                      },
+                      "api": {
+                        "name": {
+                          "label": "",
+                          "value": ""
+                        },
+                        "outParams": {
+                          "label": "",
+                          "value": ""
+                        }
+                      },
+                      "contentType": "nlu"
+                    }
+                  ]
+                }
+              ],
+              "admittance": {
+                "or": [
+                  {
+                    "and": [
+                      {
+                        "operate": "eq",
+                        "paramLeft": "slot",
+                        "params2": "",
+                        "slot": {
+                          "isRequired": "1",
+                          "clarify": {
+                            "failText": "你选的不是北京的地方",
+                            "clarifyOption": [
+                              {
+                                "expand": true,
+                                "randomText": [
+                                  {
+                                    "text": "望京，中关村和五道口，这三个地方都不错。你住得离哪里比较近"
+                                  }
+                                ]
+                              },
+                              {
+                                "expand": true,
+                                "randomText": [
+                                  {
+                                    "text": "望京，中关村和五道口，三选一，我再进步一帮你推荐"
+                                  }
+                                ]
+                              },
+                              {
+                                "expand": true,
+                                "randomText": [
+                                  {
+                                    "text": "望京，中关村 or 五道口"
+                                  }
+                                ]
+                              }
+                            ],
+                            "clarifyNum": 3,
+                            "isEdit": true
+                          },
+                          "name": "地点填槽节点",
+                          "id": "3b2b2ec0-b406-11e9-a15b-a96df4b9e614",
+                          "content": [
+                            {
+                              "expression": {
+                                "text": ""
+                              },
+                              "nlu": {
+                                "paramLeft": "properNoun",
+                                "value": {
+                                  "domain": {
+                                    "label": "",
+                                    "value": ""
+                                  },
+                                  "noun": {
+                                    "label": "user.{{word_dict_beijing_location_name}}",
+                                    "value": "{{word_dict_beijing_location_id}}"
+                                  },
+                                  "slot": {
+                                    "label": "",
+                                    "value": ""
+                                  },
+                                  "intent": {
+                                    "label": "",
+                                    "value": ""
+                                  }
+                                }
+                              },
+                              "api": {
+                                "name": {
+                                  "label": "",
+                                  "value": ""
+                                },
+                                "outParams": {
+                                  "label": "",
+                                  "value": ""
+                                }
+                              },
+                              "contentType": "nlu"
+                            }
+                          ]
+                        },
+                        "value": "中关村",
+                        "params1": ""
+                      }
+                    ]
+                  },
+                  {
+                    "and": [
+                      {
+                        "operate": "eq",
+                        "paramLeft": "slot",
+                        "params2": "",
+                        "slot": {
+                          "isRequired": "1",
+                          "clarify": {
+                            "failText": "你选的不是北京的地方",
+                            "clarifyOption": [
+                              {
+                                "expand": true,
+                                "randomText": [
+                                  {
+                                    "text": "望京，中关村和五道口，这三个地方都不错。你住得离哪里比较近"
+                                  }
+                                ]
+                              },
+                              {
+                                "expand": true,
+                                "randomText": [
+                                  {
+                                    "text": "望京，中关村和五道口，三选一，我再进步一帮你推荐"
+                                  }
+                                ]
+                              },
+                              {
+                                "expand": true,
+                                "randomText": [
+                                  {
+                                    "text": "望京，中关村 or 五道口"
+                                  }
+                                ]
+                              }
+                            ],
+                            "clarifyNum": 3,
+                            "isEdit": true
+                          },
+                          "name": "地点填槽节点",
+                          "id": "3b2b2ec0-b406-11e9-a15b-a96df4b9e614",
+                          "content": [
+                            {
+                              "expression": {
+                                "text": ""
+                              },
+                              "nlu": {
+                                "paramLeft": "properNoun",
+                                "value": {
+                                  "domain": {
+                                    "label": "",
+                                    "value": ""
+                                  },
+                                  "noun": {
+                                    "label": "user.{{word_dict_beijing_location_name}}",
+                                    "value": "{{word_dict_beijing_location_id}}"
+                                  },
+                                  "slot": {
+                                    "label": "",
+                                    "value": ""
+                                  },
+                                  "intent": {
+                                    "label": "",
+                                    "value": ""
+                                  }
+                                }
+                              },
+                              "api": {
+                                "name": {
+                                  "label": "",
+                                  "value": ""
+                                },
+                                "outParams": {
+                                  "label": "",
+                                  "value": ""
+                                }
+                              },
+                              "contentType": "nlu"
+                            }
+                          ]
+                        },
+                        "value": "五道口",
+                        "params1": ""
+                      }
+                    ]
+                  },
+                  {
+                    "and": [
+                      {
+                        "operate": "eq",
+                        "paramLeft": "slot",
+                        "params2": "",
+                        "slot": {
+                          "isRequired": "1",
+                          "clarify": {
+                            "failText": "你选的不是北京的地方",
+                            "clarifyOption": [
+                              {
+                                "expand": true,
+                                "randomText": [
+                                  {
+                                    "text": "望京，中关村和五道口，这三个地方都不错。你住得离哪里比较近"
+                                  }
+                                ]
+                              },
+                              {
+                                "expand": true,
+                                "randomText": [
+                                  {
+                                    "text": "望京，中关村和五道口，三选一，我再进步一帮你推荐"
+                                  }
+                                ]
+                              },
+                              {
+                                "expand": true,
+                                "randomText": [
+                                  {
+                                    "text": "望京，中关村 or 五道口"
+                                  }
+                                ]
+                              }
+                            ],
+                            "clarifyNum": 3,
+                            "isEdit": true
+                          },
+                          "name": "地点填槽节点",
+                          "id": "3b2b2ec0-b406-11e9-a15b-a96df4b9e614",
+                          "content": [
+                            {
+                              "expression": {
+                                "text": ""
+                              },
+                              "nlu": {
+                                "paramLeft": "properNoun",
+                                "value": {
+                                  "domain": {
+                                    "label": "",
+                                    "value": ""
+                                  },
+                                  "noun": {
+                                    "label": "user.{{word_dict_beijing_location_name}}",
+                                    "value": "{{word_dict_beijing_location_id}}"
+                                  },
+                                  "slot": {
+                                    "label": "",
+                                    "value": ""
+                                  },
+                                  "intent": {
+                                    "label": "",
+                                    "value": ""
+                                  }
+                                }
+                              },
+                              "api": {
+                                "name": {
+                                  "label": "",
+                                  "value": ""
+                                },
+                                "outParams": {
+                                  "label": "",
+                                  "value": ""
+                                }
+                              },
+                              "contentType": "nlu"
+                            }
+                          ]
+                        },
+                        "value": "望京",
+                        "params1": ""
+                      }
+                    ]
+                  }
+                ],
+                "priority": "",
+                "defaultEnable": "custom"
+              }
+            },
+            "CallActivity_0bkntc8": {
+              "type": "answer",
+              "executeSlot": [
+                {
+                  "dying": false,
+                  "text": "你选的食物我不熟悉啊",
+                  "type": "normal"
+                },
+                {
+                  "dying": false,
+                  "text": "你感兴趣的食物是${task.食物填槽节点(209139f0-b407-11e9-a15b-a96df4b9e614)}\n我不太熟悉啊",
+                  "type": "dynamic"
+                }
+              ],
+              "admittance": {
+                "or": [
+                  {
+                    "and": [
+                      {
+                        "operate": "",
+                        "param": {
+                          "label": "",
+                          "value": ""
+                        },
+                        "valueLabel": "",
+                        "paramLeft": "",
+                        "api": {
+                          "label": "",
+                          "value": ""
+                        },
+                        "value": ""
+                      }
+                    ]
+                  }
+                ],
+                "priority": "",
+                "defaultEnable": "reveal"
+              }
+            }
+          },
+          "trigger": {
+            "or": [
+              {
+                "and": [
+                  {
+                    "operate": "eq",
+                    "valueLabel": "{{category_name}}",
+                    "paramLeft": "domain",
+                    "value": "{{category_id}}",
+                    "inner": {
+                      "operate": "eq",
+                      "valueLabel": "{{intent_name_beijing_location_food}}",
+                      "paramLeft": "domainIntent",
+                      "value": "{{intent_id_beijing_location_food}}"
+                    }
+                  }
+                ]
+              }
+            ],
+            "priority": "",
+            "defaultEnable": "custom"
+          }
+        }
+      },
+      "assert": {
+        "statusCode": 200,
+        "check": {
+          "$.code": 200,
+          "$.message": "请求成功",
+          "$.data": "测试成功"
+        }
+      }
+    },
+    {
+      "desc": "保存task配置",
+      "type": "http_request",
+      "request": {
+        "url": "{{http_host}}/moses/taskbot/process/version/save",
+        "method": "POST",
+        "headers": {
+          "Cookie": "{{cookie}}",
+          "groupId": "{{group_id}}",
+          "tenantId": "{{tenant_id}}"
+        },
+        "payload": {
+          "id": "{{task_version_id}}",
+          "bpmnXml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<bpmn2:definitions xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:bpmn2=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" id=\"sample-diagram\" targetNamespace=\"http://bpmn.io/schema/bpmn\" xsi:schemaLocation=\"http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd\">\n  <bpmn2:process id=\"Process_1\" isExecutable=\"false\">\n    <bpmn2:startEvent id=\"StartEvent_1\">\n      <bpmn2:outgoing>SequenceFlow_05b7q6m</bpmn2:outgoing>\n    </bpmn2:startEvent>\n    <bpmn2:callActivity id=\"CallActivity_0qexy09\" name=\"填槽节点\" calledElement=\"slot\">\n      <bpmn2:incoming>SequenceFlow_05b7q6m</bpmn2:incoming>\n      <bpmn2:outgoing>SequenceFlow_13dyqes</bpmn2:outgoing>\n      <bpmn2:outgoing>SequenceFlow_0ip4cky</bpmn2:outgoing>\n    </bpmn2:callActivity>\n    <bpmn2:sequenceFlow id=\"SequenceFlow_05b7q6m\" sourceRef=\"StartEvent_1\" targetRef=\"CallActivity_0qexy09\" />\n    <bpmn2:callActivity id=\"CallActivity_18pu2c5\" name=\"填槽节点\" calledElement=\"slot\">\n      <bpmn2:incoming>SequenceFlow_13dyqes</bpmn2:incoming>\n      <bpmn2:outgoing>SequenceFlow_17t6oci</bpmn2:outgoing>\n      <bpmn2:outgoing>SequenceFlow_0dqdm91</bpmn2:outgoing>\n    </bpmn2:callActivity>\n    <bpmn2:sequenceFlow id=\"SequenceFlow_13dyqes\" sourceRef=\"CallActivity_0qexy09\" targetRef=\"CallActivity_18pu2c5\" />\n    <bpmn2:callActivity id=\"CallActivity_0961ym7\" name=\"第一次兜底回复\" calledElement=\"answer\">\n      <bpmn2:incoming>SequenceFlow_0ip4cky</bpmn2:incoming>\n    </bpmn2:callActivity>\n    <bpmn2:sequenceFlow id=\"SequenceFlow_0ip4cky\" sourceRef=\"CallActivity_0qexy09\" targetRef=\"CallActivity_0961ym7\" />\n    <bpmn2:callActivity id=\"CallActivity_1f9dkrq\" name=\"回复节点\" calledElement=\"answer\">\n      <bpmn2:incoming>SequenceFlow_17t6oci</bpmn2:incoming>\n    </bpmn2:callActivity>\n    <bpmn2:sequenceFlow id=\"SequenceFlow_17t6oci\" sourceRef=\"CallActivity_18pu2c5\" targetRef=\"CallActivity_1f9dkrq\" />\n    <bpmn2:callActivity id=\"CallActivity_0bkntc8\" name=\"第二次兜底回复\" calledElement=\"answer\">\n      <bpmn2:incoming>SequenceFlow_0dqdm91</bpmn2:incoming>\n    </bpmn2:callActivity>\n    <bpmn2:sequenceFlow id=\"SequenceFlow_0dqdm91\" sourceRef=\"CallActivity_18pu2c5\" targetRef=\"CallActivity_0bkntc8\" />\n  </bpmn2:process>\n  <bpmndi:BPMNDiagram id=\"BPMNDiagram_1\">\n    <bpmndi:BPMNPlane id=\"BPMNPlane_1\" bpmnElement=\"Process_1\">\n      <bpmndi:BPMNShape id=\"_BPMNShape_StartEvent_2\" bpmnElement=\"StartEvent_1\">\n        <dc:Bounds x=\"200\" y=\"100\" width=\"50\" height=\"50\" />\n        <bpmndi:BPMNLabel>\n          <dc:Bounds x=\"213\" y=\"117\" width=\"22\" height=\"14\" />\n        </bpmndi:BPMNLabel>\n      </bpmndi:BPMNShape>\n      <bpmndi:BPMNShape id=\"CallActivity_0qexy09_di\" bpmnElement=\"CallActivity_0qexy09\">\n        <dc:Bounds x=\"300\" y=\"85\" width=\"110\" height=\"80\" />\n      </bpmndi:BPMNShape>\n      <bpmndi:BPMNEdge id=\"SequenceFlow_05b7q6m_di\" bpmnElement=\"SequenceFlow_05b7q6m\">\n        <di:waypoint x=\"250\" y=\"125\" />\n        <di:waypoint x=\"300\" y=\"125\" />\n      </bpmndi:BPMNEdge>\n      <bpmndi:BPMNShape id=\"CallActivity_18pu2c5_di\" bpmnElement=\"CallActivity_18pu2c5\">\n        <dc:Bounds x=\"460\" y=\"85\" width=\"110\" height=\"80\" />\n      </bpmndi:BPMNShape>\n      <bpmndi:BPMNEdge id=\"SequenceFlow_13dyqes_di\" bpmnElement=\"SequenceFlow_13dyqes\">\n        <di:waypoint x=\"410\" y=\"125\" />\n        <di:waypoint x=\"460\" y=\"125\" />\n      </bpmndi:BPMNEdge>\n      <bpmndi:BPMNShape id=\"CallActivity_0961ym7_di\" bpmnElement=\"CallActivity_0961ym7\">\n        <dc:Bounds x=\"460\" y=\"195\" width=\"110\" height=\"80\" />\n      </bpmndi:BPMNShape>\n      <bpmndi:BPMNEdge id=\"SequenceFlow_0ip4cky_di\" bpmnElement=\"SequenceFlow_0ip4cky\">\n        <di:waypoint x=\"410\" y=\"125\" />\n        <di:waypoint x=\"435\" y=\"125\" />\n        <di:waypoint x=\"435\" y=\"235\" />\n        <di:waypoint x=\"460\" y=\"235\" />\n      </bpmndi:BPMNEdge>\n      <bpmndi:BPMNShape id=\"CallActivity_1f9dkrq_di\" bpmnElement=\"CallActivity_1f9dkrq\">\n        <dc:Bounds x=\"620\" y=\"85\" width=\"110\" height=\"80\" />\n      </bpmndi:BPMNShape>\n      <bpmndi:BPMNEdge id=\"SequenceFlow_17t6oci_di\" bpmnElement=\"SequenceFlow_17t6oci\">\n        <di:waypoint x=\"570\" y=\"125\" />\n        <di:waypoint x=\"620\" y=\"125\" />\n      </bpmndi:BPMNEdge>\n      <bpmndi:BPMNShape id=\"CallActivity_0bkntc8_di\" bpmnElement=\"CallActivity_0bkntc8\">\n        <dc:Bounds x=\"620\" y=\"195\" width=\"110\" height=\"80\" />\n      </bpmndi:BPMNShape>\n      <bpmndi:BPMNEdge id=\"SequenceFlow_0dqdm91_di\" bpmnElement=\"SequenceFlow_0dqdm91\">\n        <di:waypoint x=\"570\" y=\"125\" />\n        <di:waypoint x=\"595\" y=\"125\" />\n        <di:waypoint x=\"595\" y=\"235\" />\n        <di:waypoint x=\"620\" y=\"235\" />\n      </bpmndi:BPMNEdge>\n    </bpmndi:BPMNPlane>\n  </bpmndi:BPMNDiagram>\n</bpmn2:definitions>\n",
+          "bpmnConfig": {
+            "CallActivity_0961ym7": {
+              "type": "answer",
+              "executeSlot": [
+                {
+                  "dying": false,
+                  "text": "你选的地方我不熟悉啊",
+                  "type": "normal"
+                },
+                {
+                  "dying": false,
+                  "text": "你选的地方是${task.地点填槽节点(3b2b2ec0-b406-11e9-a15b-a96df4b9e614)}\n我不太熟悉啊",
+                  "type": "dynamic"
+                }
+              ],
+              "admittance": {
+                "or": [
+                  {
+                    "and": [
+                      {
+                        "operate": "",
+                        "param": {
+                          "label": "",
+                          "value": ""
+                        },
+                        "valueLabel": "",
+                        "paramLeft": "",
+                        "api": {
+                          "label": "",
+                          "value": ""
+                        },
+                        "value": ""
+                      }
+                    ]
+                  }
+                ],
+                "priority": "",
+                "defaultEnable": "reveal"
+              }
+            },
+            "CallActivity_0qexy09": {
+              "type": "slot",
+              "executeSlot": [
+                {
+                  "isRequired": "1",
+                  "clarify": {
+                    "failText": "你选的不是北京的地方",
+                    "clarifyOption": [
+                      {
+                        "expand": true,
+                        "randomText": [
+                          {
+                            "text": "望京，中关村和五道口，这三个地方都不错。你住得离哪里比较近"
+                          }
+                        ]
+                      },
+                      {
+                        "expand": true,
+                        "randomText": [
+                          {
+                            "text": "望京，中关村和五道口，三选一，我再进一步帮你推荐"
+                          }
+                        ]
+                      },
+                      {
+                        "expand": true,
+                        "randomText": [
+                          {
+                            "text": "望京，中关村 or 五道口"
+                          }
+                        ]
+                      }
+                    ],
+                    "clarifyNum": 3,
+                    "isEdit": true
+                  },
+                  "name": "地点填槽节点",
+                  "id": "3b2b2ec0-b406-11e9-a15b-a96df4b9e614",
+                  "content": [
+                    {
+                      "expression": {
+                        "text": ""
+                      },
+                      "nlu": {
+                        "paramLeft": "properNoun",
+                        "value": {
+                          "domain": {
+                            "label": "",
+                            "value": ""
+                          },
+                          "noun": {
+                            "label": "user.{{word_dict_beijing_location_name}}",
+                            "value": "{{word_dict_beijing_location_id}}"
+                          },
+                          "slot": {
+                            "label": "",
+                            "value": ""
+                          },
+                          "intent": {
+                            "label": "",
+                            "value": ""
+                          }
+                        }
+                      },
+                      "api": {
+                        "name": {
+                          "label": "",
+                          "value": ""
+                        },
+                        "outParams": {
+                          "label": "",
+                          "value": ""
+                        }
+                      },
+                      "contentType": "nlu"
+                    }
+                  ]
+                }
+              ],
+              "admittance": {
+                "or": [
+                  {
+                    "and": [
+                      {
+                        "operate": "",
+                        "param": {
+                          "label": "",
+                          "value": ""
+                        },
+                        "valueLabel": "",
+                        "paramLeft": "",
+                        "api": {
+                          "label": "",
+                          "value": ""
+                        },
+                        "value": ""
+                      }
+                    ]
+                  }
+                ],
+                "priority": "",
+                "defaultEnable": "custom"
+              }
+            },
+            "CallActivity_1f9dkrq": {
+              "type": "answer",
+              "executeSlot": [
+                {
+                  "dying": false,
+                  "text": "你已经选好了地点和食物，让我来好好想想",
+                  "type": "normal"
+                },
+                {
+                  "dying": false,
+                  "text": "你选的地点是${task.地点填槽节点(3b2b2ec0-b406-11e9-a15b-a96df4b9e614)}\n你选的食物是${task.食物填槽节点(209139f0-b407-11e9-a15b-a96df4b9e614)}",
+                  "type": "dynamic"
+                }
+              ],
+              "admittance": {
+                "or": [
+                  {
+                    "and": [
+                      {
+                        "operate": "eq",
+                        "paramLeft": "slot",
+                        "params2": "",
+                        "slot": {
+                          "isRequired": "1",
+                          "clarify": {
+                            "failText": "你爱吃的这种我可不熟啊",
+                            "clarifyOption": [
+                              {
+                                "expand": true,
+                                "randomText": [
+                                  {
+                                    "text": "火锅和烧烤最棒了，你喜欢哪种"
+                                  }
+                                ]
+                              },
+                              {
+                                "expand": true,
+                                "randomText": [
+                                  {
+                                    "text": "火锅还是烧烤呢"
+                                  }
+                                ]
+                              },
+                              {
+                                "expand": true,
+                                "randomText": [
+                                  {
+                                    "text": "火锅，烧烤，二选一"
+                                  }
+                                ]
+                              }
+                            ],
+                            "clarifyNum": 3,
+                            "isEdit": true
+                          },
+                          "name": "食物填槽节点",
+                          "id": "209139f0-b407-11e9-a15b-a96df4b9e614",
+                          "content": [
+                            {
+                              "expression": {
+                                "text": ""
+                              },
+                              "nlu": {
+                                "paramLeft": "properNoun",
+                                "value": {
+                                  "domain": {
+                                    "label": "",
+                                    "value": ""
+                                  },
+                                  "noun": {
+                                    "label": "user.{{word_dict_beijing_food_name}}",
+                                    "value": "{{word_dict_beijing_food_id}}"
+                                  },
+                                  "slot": {
+                                    "label": "",
+                                    "value": ""
+                                  },
+                                  "intent": {
+                                    "label": "",
+                                    "value": ""
+                                  }
+                                }
+                              },
+                              "api": {
+                                "name": {
+                                  "label": "",
+                                  "value": ""
+                                },
+                                "outParams": {
+                                  "label": "",
+                                  "value": ""
+                                }
+                              },
+                              "contentType": "nlu"
+                            }
+                          ]
+                        },
+                        "value": "火锅",
+                        "params1": ""
+                      }
+                    ]
+                  },
+                  {
+                    "and": [
+                      {
+                        "operate": "eq",
+                        "paramLeft": "slot",
+                        "params2": "",
+                        "slot": {
+                          "isRequired": "1",
+                          "clarify": {
+                            "failText": "你爱吃的这种我可不熟啊",
+                            "clarifyOption": [
+                              {
+                                "expand": true,
+                                "randomText": [
+                                  {
+                                    "text": "火锅和烧烤最棒了，你喜欢哪种"
+                                  }
+                                ]
+                              },
+                              {
+                                "expand": true,
+                                "randomText": [
+                                  {
+                                    "text": "火锅还是烧烤呢"
+                                  }
+                                ]
+                              },
+                              {
+                                "expand": true,
+                                "randomText": [
+                                  {
+                                    "text": "火锅，烧烤，二选一"
+                                  }
+                                ]
+                              }
+                            ],
+                            "clarifyNum": 3,
+                            "isEdit": true
+                          },
+                          "name": "食物填槽节点",
+                          "id": "209139f0-b407-11e9-a15b-a96df4b9e614",
+                          "content": [
+                            {
+                              "expression": {
+                                "text": ""
+                              },
+                              "nlu": {
+                                "paramLeft": "properNoun",
+                                "value": {
+                                  "domain": {
+                                    "label": "",
+                                    "value": ""
+                                  },
+                                  "noun": {
+                                    "label": "user.{{word_dict_beijing_food_name}}",
+                                    "value": "{{word_dict_beijing_food_id}}"
+                                  },
+                                  "slot": {
+                                    "label": "",
+                                    "value": ""
+                                  },
+                                  "intent": {
+                                    "label": "",
+                                    "value": ""
+                                  }
+                                }
+                              },
+                              "api": {
+                                "name": {
+                                  "label": "",
+                                  "value": ""
+                                },
+                                "outParams": {
+                                  "label": "",
+                                  "value": ""
+                                }
+                              },
+                              "contentType": "nlu"
+                            }
+                          ]
+                        },
+                        "value": "烧烤",
+                        "params1": ""
+                      }
+                    ]
+                  }
+                ],
+                "priority": "",
+                "defaultEnable": "custom"
+              }
+            },
+            "CallActivity_18pu2c5": {
+              "type": "slot",
+              "executeSlot": [
+                {
+                  "isRequired": "1",
+                  "clarify": {
+                    "failText": "你选的这个能吃吗",
+                    "clarifyOption": [
+                      {
+                        "expand": true,
+                        "randomText": [
+                          {
+                            "text": "火锅和烧烤最棒了，你喜欢哪种"
+                          }
+                        ]
+                      },
+                      {
+                        "expand": true,
+                        "randomText": [
+                          {
+                            "text": "火锅还是烧烤呢"
+                          }
+                        ]
+                      },
+                      {
+                        "expand": true,
+                        "randomText": [
+                          {
+                            "text": "火锅，烧烤，二选一"
+                          }
+                        ]
+                      }
+                    ],
+                    "clarifyNum": 3,
+                    "isEdit": true
+                  },
+                  "name": "食物填槽节点",
+                  "id": "209139f0-b407-11e9-a15b-a96df4b9e614",
+                  "content": [
+                    {
+                      "expression": {
+                        "text": ""
+                      },
+                      "nlu": {
+                        "paramLeft": "properNoun",
+                        "value": {
+                          "domain": {
+                            "label": "",
+                            "value": ""
+                          },
+                          "noun": {
+                            "label": "user.{{word_dict_beijing_food_name}}",
+                            "value": "{{word_dict_beijing_food_id}}"
+                          },
+                          "slot": {
+                            "label": "",
+                            "value": ""
+                          },
+                          "intent": {
+                            "label": "",
+                            "value": ""
+                          }
+                        }
+                      },
+                      "api": {
+                        "name": {
+                          "label": "",
+                          "value": ""
+                        },
+                        "outParams": {
+                          "label": "",
+                          "value": ""
+                        }
+                      },
+                      "contentType": "nlu"
+                    }
+                  ]
+                }
+              ],
+              "admittance": {
+                "or": [
+                  {
+                    "and": [
+                      {
+                        "operate": "eq",
+                        "paramLeft": "slot",
+                        "params2": "",
+                        "slot": {
+                          "isRequired": "1",
+                          "clarify": {
+                            "failText": "你选的不是北京的地方",
+                            "clarifyOption": [
+                              {
+                                "expand": true,
+                                "randomText": [
+                                  {
+                                    "text": "望京，中关村和五道口，这三个地方都不错。你住得离哪里比较近"
+                                  }
+                                ]
+                              },
+                              {
+                                "expand": true,
+                                "randomText": [
+                                  {
+                                    "text": "望京，中关村和五道口，三选一，我再进步一帮你推荐"
+                                  }
+                                ]
+                              },
+                              {
+                                "expand": true,
+                                "randomText": [
+                                  {
+                                    "text": "望京，中关村 or 五道口"
+                                  }
+                                ]
+                              }
+                            ],
+                            "clarifyNum": 3,
+                            "isEdit": true
+                          },
+                          "name": "地点填槽节点",
+                          "id": "3b2b2ec0-b406-11e9-a15b-a96df4b9e614",
+                          "content": [
+                            {
+                              "expression": {
+                                "text": ""
+                              },
+                              "nlu": {
+                                "paramLeft": "properNoun",
+                                "value": {
+                                  "domain": {
+                                    "label": "",
+                                    "value": ""
+                                  },
+                                  "noun": {
+                                    "label": "user.{{word_dict_beijing_location_name}}",
+                                    "value": "{{word_dict_beijing_location_id}}"
+                                  },
+                                  "slot": {
+                                    "label": "",
+                                    "value": ""
+                                  },
+                                  "intent": {
+                                    "label": "",
+                                    "value": ""
+                                  }
+                                }
+                              },
+                              "api": {
+                                "name": {
+                                  "label": "",
+                                  "value": ""
+                                },
+                                "outParams": {
+                                  "label": "",
+                                  "value": ""
+                                }
+                              },
+                              "contentType": "nlu"
+                            }
+                          ]
+                        },
+                        "value": "中关村",
+                        "params1": ""
+                      }
+                    ]
+                  },
+                  {
+                    "and": [
+                      {
+                        "operate": "eq",
+                        "paramLeft": "slot",
+                        "params2": "",
+                        "slot": {
+                          "isRequired": "1",
+                          "clarify": {
+                            "failText": "你选的不是北京的地方",
+                            "clarifyOption": [
+                              {
+                                "expand": true,
+                                "randomText": [
+                                  {
+                                    "text": "望京，中关村和五道口，这三个地方都不错。你住得离哪里比较近"
+                                  }
+                                ]
+                              },
+                              {
+                                "expand": true,
+                                "randomText": [
+                                  {
+                                    "text": "望京，中关村和五道口，三选一，我再进步一帮你推荐"
+                                  }
+                                ]
+                              },
+                              {
+                                "expand": true,
+                                "randomText": [
+                                  {
+                                    "text": "望京，中关村 or 五道口"
+                                  }
+                                ]
+                              }
+                            ],
+                            "clarifyNum": 3,
+                            "isEdit": true
+                          },
+                          "name": "地点填槽节点",
+                          "id": "3b2b2ec0-b406-11e9-a15b-a96df4b9e614",
+                          "content": [
+                            {
+                              "expression": {
+                                "text": ""
+                              },
+                              "nlu": {
+                                "paramLeft": "properNoun",
+                                "value": {
+                                  "domain": {
+                                    "label": "",
+                                    "value": ""
+                                  },
+                                  "noun": {
+                                    "label": "user.{{word_dict_beijing_location_name}}",
+                                    "value": "{{word_dict_beijing_location_id}}"
+                                  },
+                                  "slot": {
+                                    "label": "",
+                                    "value": ""
+                                  },
+                                  "intent": {
+                                    "label": "",
+                                    "value": ""
+                                  }
+                                }
+                              },
+                              "api": {
+                                "name": {
+                                  "label": "",
+                                  "value": ""
+                                },
+                                "outParams": {
+                                  "label": "",
+                                  "value": ""
+                                }
+                              },
+                              "contentType": "nlu"
+                            }
+                          ]
+                        },
+                        "value": "五道口",
+                        "params1": ""
+                      }
+                    ]
+                  },
+                  {
+                    "and": [
+                      {
+                        "operate": "eq",
+                        "paramLeft": "slot",
+                        "params2": "",
+                        "slot": {
+                          "isRequired": "1",
+                          "clarify": {
+                            "failText": "你选的不是北京的地方",
+                            "clarifyOption": [
+                              {
+                                "expand": true,
+                                "randomText": [
+                                  {
+                                    "text": "望京，中关村和五道口，这三个地方都不错。你住得离哪里比较近"
+                                  }
+                                ]
+                              },
+                              {
+                                "expand": true,
+                                "randomText": [
+                                  {
+                                    "text": "望京，中关村和五道口，三选一，我再进步一帮你推荐"
+                                  }
+                                ]
+                              },
+                              {
+                                "expand": true,
+                                "randomText": [
+                                  {
+                                    "text": "望京，中关村 or 五道口"
+                                  }
+                                ]
+                              }
+                            ],
+                            "clarifyNum": 3,
+                            "isEdit": true
+                          },
+                          "name": "地点填槽节点",
+                          "id": "3b2b2ec0-b406-11e9-a15b-a96df4b9e614",
+                          "content": [
+                            {
+                              "expression": {
+                                "text": ""
+                              },
+                              "nlu": {
+                                "paramLeft": "properNoun",
+                                "value": {
+                                  "domain": {
+                                    "label": "",
+                                    "value": ""
+                                  },
+                                  "noun": {
+                                    "label": "user.{{word_dict_beijing_location_name}}",
+                                    "value": "{{word_dict_beijing_location_id}}"
+                                  },
+                                  "slot": {
+                                    "label": "",
+                                    "value": ""
+                                  },
+                                  "intent": {
+                                    "label": "",
+                                    "value": ""
+                                  }
+                                }
+                              },
+                              "api": {
+                                "name": {
+                                  "label": "",
+                                  "value": ""
+                                },
+                                "outParams": {
+                                  "label": "",
+                                  "value": ""
+                                }
+                              },
+                              "contentType": "nlu"
+                            }
+                          ]
+                        },
+                        "value": "望京",
+                        "params1": ""
+                      }
+                    ]
+                  }
+                ],
+                "priority": "",
+                "defaultEnable": "custom"
+              }
+            },
+            "CallActivity_0bkntc8": {
+              "type": "answer",
+              "executeSlot": [
+                {
+                  "dying": false,
+                  "text": "你选的食物我不熟悉啊",
+                  "type": "normal"
+                },
+                {
+                  "dying": false,
+                  "text": "你感兴趣的食物是${task.食物填槽节点(209139f0-b407-11e9-a15b-a96df4b9e614)}\n我不太熟悉啊",
+                  "type": "dynamic"
+                }
+              ],
+              "admittance": {
+                "or": [
+                  {
+                    "and": [
+                      {
+                        "operate": "",
+                        "param": {
+                          "label": "",
+                          "value": ""
+                        },
+                        "valueLabel": "",
+                        "paramLeft": "",
+                        "api": {
+                          "label": "",
+                          "value": ""
+                        },
+                        "value": ""
+                      }
+                    ]
+                  }
+                ],
+                "priority": "",
+                "defaultEnable": "reveal"
+              }
+            }
+          },
+          "trigger": {
+            "or": [
+              {
+                "and": [
+                  {
+                    "operate": "eq",
+                    "valueLabel": "{{category_name}}",
+                    "paramLeft": "domain",
+                    "value": "{{category_id}}",
+                    "inner": {
+                      "operate": "eq",
+                      "valueLabel": "{{intent_name_beijing_location_food}}",
+                      "paramLeft": "domainIntent",
+                      "value": "{{intent_id_beijing_location_food}}"
+                    }
+                  }
+                ]
+              }
+            ],
+            "priority": "",
+            "defaultEnable": "custom"
+          }
+        }
+      },
+      "assert": {
+        "statusCode": 200,
+        "check": {
+          "$.code": 200,
+          "$.message": "请求成功",
+          "$.data": "{{task_version_id}}"
+        }
+      }
+    },
+    {
+      "desc": "上线task版本",
+      "type": "http_request",
+      "request": {
+        "url": "{{http_host}}/moses/taskbot/process/version/online",
+        "method": "POST",
+        "headers": {
+          "Cookie": "{{cookie}}",
+          "groupId": "{{group_id}}",
+          "tenantId": "{{tenant_id}}"
+        },
+        "payload": {
+          "id": "{{task_version_id}}",
+          "proportion": 100
+        }
+      },
+      "assert": {
+        "statusCode": 200,
+        "check": {
+          "$.code": 200,
+          "$.message": "请求成功",
+          "$.data": 1
+        }
+      }
+    },
+    {
+      "desc": "等待10秒钟, task才能生效",
+      "type": "wait",
+      "duration": 10
+    },
+    {
+      "desc": "对话中测试task, 场景1, 第一个问题",
+      "type": "http_request",
+      "request": {
+        "url": "{{http_host}}/api/v2/dm/trigger",
+        "method": "POST",
+        "headers": {
+          "Cookie": "{{cookie}}",
+          "groupId": "{{group_id}}",
+          "tenantId": "{{tenant_id}}"
+        },
+        "payload": {
+          "version": "1.0.0",
+          "query": "{{intent_name_beijing_location_food}}",
+          "sessionId": "60e6c6b0-b424-11e9-9906-2df2341d5625",
+          "messageId": "6777af30-b424-11e9-9906-2df2341d5625",
+          "messageType": "TEXT",
+          "appInfo": {
+            "robotKey": "{{robot_key}}"
+          },
+          "userInfo": {
+            "userId": "0"
+          }
+        }
+      },
+      "assert": {
+        "statusCode": 200,
+        "check": {
+          "$.code": 200,
+          "$.message": "请求成功",
+          "$.data.dmResult[0].solution": "望京，中关村和五道口，这三个地方都不错。你住得离哪里比较近",
+          "$.data.dmResult[0].spokenText": "望京，中关村和五道口，这三个地方都不错。你住得离哪里比较近",
+          "$.data.query": "{{intent_name_beijing_location_food}}",
+          "$.data.nluResult[0].dialogActs[0].act": "{{intent_id_beijing_location_food}}_{{intent_name_beijing_location_food}}"
+        }
+      }
+    },
+    {
+      "desc": "对话中测试task, 场景1, 第二个问题",
+      "type": "http_request",
+      "request": {
+        "url": "{{http_host}}/api/v2/dm/trigger",
+        "method": "POST",
+        "headers": {
+          "Cookie": "{{cookie}}",
+          "groupId": "{{group_id}}",
+          "tenantId": "{{tenant_id}}"
+        },
+        "payload": {
+          "version": "1.0.0",
+          "query": "{{task_question_001}}",
+          "sessionId": "60e6c6b0-b424-11e9-9906-2df2341d5625",
+          "messageId": "6777af30-b424-11e9-9906-2df2341d5625",
+          "messageType": "TEXT",
+          "appInfo": {
+            "robotKey": "{{robot_key}}"
+          },
+          "userInfo": {
+            "userId": "0"
+          }
+        }
+      },
+      "assert": {
+        "statusCode": 200,
+        "check": {
+          "$.code": 200,
+          "$.message": "请求成功",
+          "$.data.dmResult[0].solution": "火锅和烧烤最棒了，你喜欢哪种",
+          "$.data.dmResult[0].spokenText": "火锅和烧烤最棒了，你喜欢哪种",
+          "$.data.nluResult[0].actType": 1,
+          "$.data.query": "{{task_question_001}}"
+        }
+      }
+    },
+    {
+      "desc": "对话中测试task, 场景1, 第三个问题",
+      "type": "http_request",
+      "request": {
+        "url": "{{http_host}}/api/v2/dm/trigger",
+        "method": "POST",
+        "headers": {
+          "Cookie": "{{cookie}}",
+          "groupId": "{{group_id}}",
+          "tenantId": "{{tenant_id}}"
+        },
+        "payload": {
+          "version": "1.0.0",
+          "query": "{{task_question_002}}",
+          "sessionId": "60e6c6b0-b424-11e9-9906-2df2341d5625",
+          "messageId": "6777af30-b424-11e9-9906-2df2341d5625",
+          "messageType": "TEXT",
+          "appInfo": {
+            "robotKey": "{{robot_key}}"
+          },
+          "userInfo": {
+            "userId": "0"
+          }
+        }
+      },
+      "assert": {
+        "statusCode": 200,
+        "check": {
+          "$.code": 200,
+          "$.message": "请求成功",
+          "$.data.dmResult[0].solution": "你选的地点是{{task_question_001}}\n你选的食物是{{task_question_002}}",
+          "$.data.dmResult[0].spokenText": "你选的地点是{{task_question_001}}\n你选的食物是{{task_question_002}}",
+          "$.data.nluResult[0].actType": 1,
+          "$.data.query": "{{task_question_002}}"
+        }
+      }
+    }
+  ]
+}

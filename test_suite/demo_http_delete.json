@@ -1,0 +1,144 @@
+{
+  "name": "自定义运营位并上线",
+  "desc": "1. 运营管理后台登陆;\n 2. 创建运营位模块\n 3. 获取最新创建的运营位模块ID\n 4.获取最新创建的运营位模块详情\n 5. 在运营位模块下创建运营元素\n 6. 客户端请求运营位位",
+  "owner": "shifang",
+  "session_params": {
+    "username": "qa002",
+    "password": "5450c81b08c7ca30b20f67cc9c372769",
+    "actCenter_type": "8",
+    "actCenter_rank": "1111",
+    "actCenter_bubble": "1",
+    "actCenter_data_source": "4",
+    "actCenter_rebate_type": "1",
+    "actCenter_ios_channel_id": "iosid1111",
+    "actCenter_android_channel_id": "andr1111",
+    "actCenter_spid": "qaspid123"
+  },
+  "session_suffix_params": {
+    "business_module_key": "shifang_business_module_key",
+    "business_element_title": "十方的运营位元素标题",
+    "business_element_subtitle": "十方的运营位元素副标题",
+    "actCenter_title": "十方的红包"
+  },
+  "tag": [
+    "smoke",
+    "func",
+    "category"
+  ],
+  "e2e": [
+    {
+      "desc": "运营管理后台登陆,获取token",
+      "type": "http_request",
+      "request": {
+        "url": "{{business_http_host}}/api/auth/login",
+        "method": "POST",
+        "headers": {
+          "Cookie": "sqkb-sso-dev-token="
+        },
+        "payload": {
+          "username": "{{username}}",
+          "password": "{{password}}"
+        }
+      },
+      "dynamic_params": {
+        "token": "$.data.token"
+      },
+      "assert": {
+        "status_code": 200,
+        "check": {
+          "$.code": 200,
+          "$.message": "操作成功"
+        }
+      }
+    },
+    {
+      "desc": "新增专场",
+      "type": "http_request",
+      "request": {
+        "url": "{{business_http_host}}/api/actCenter/",
+        "method": "POST",
+        "headers": {
+          "Access-Token": "{{token}}",
+          "Cookie": "sqkb-sso-dev-token={{token}}"
+        },
+        "payload": {
+          "type": "{{actCenter_type}}",
+          "id": "",
+          "insert_coupons": [],
+          "title": "1",
+          "rules": {
+            "rank": 1,
+            "bubble": "{{actCenter_bubble}}",
+            "data_source": 4,
+            "rebate_type": 1,
+            "rebate_price": "",
+            "commission": "",
+            "max_final_price": "",
+            "max_zk_price": "",
+            "ios_channel_id": "1",
+            "android_channel_id": "1",
+            "spid": "1"
+          },
+          "data_ids": "1",
+          "short_titles": [],
+          "halt_insert_coupons": []
+        }
+      },
+      "assert": {
+        "status_code": 200,
+        "check": {
+          "$.code": 200,
+          "$.message": "操作成功",
+          "$.status": 1
+        }
+      }
+    },
+    {
+      "desc": "获取新增专场ID",
+      "type": "http_request",
+      "request": {
+        "url": "{{business_http_host}}/api/actCenter/?type={{actCenter_type}}&status=1&order_type=desc&page=1&per_page=20",
+        "method": "GET",
+        "headers": {
+          "Access-Token": "{{token}}",
+          "Cookie": "sqkb-sso-dev-token={{token}}"
+        },
+        "payload": {
+        }
+      },
+      "dynamic_params": {
+        "actCenter_id": "$.data.data[0].id"
+      },
+      "assert": {
+        "status_code": 200,
+        "check": {
+          "$.code": 200,
+          "$.message": "操作成功",
+          "$.status": 1
+        }
+      }
+    },
+    {
+      "desc": "删除新增的专场",
+      "type": "http_request",
+      "request": {
+        "url": "{{business_http_host}}/api/actCenter/{{actCenter_id}}",
+        "method": "DELETE",
+        "headers": {
+          "Access-Token": "{{token}}",
+          "Cookie": "sqkb-sso-dev-token={{token}}"
+        },
+        "payload": {
+        }
+      },
+      "assert": {
+        "status_code": 200,
+        "check": {
+          "$.code": 200,
+          "$.message": "操作成功",
+          "$.status": 1
+        }
+      }
+    }
+  ]
+}

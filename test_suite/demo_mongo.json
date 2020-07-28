@@ -1,0 +1,36 @@
+{
+  "name": "自定义运营位并上线",
+  "desc": "测试demo",
+  "owner": "shifang",
+  "session_params": {
+    "couponId": 127794962
+  },
+  "session_suffix_params": {
+  },
+  "tag": [
+    "smoke",
+    "func",
+    "category"
+  ],
+  "e2e": [
+    {
+      "desc": "mongo demo 调试",
+      "type": "mongodb_ops",
+      "request": {
+        "db": "product",
+        "collection": "engineBaseData",
+        "single": true,
+        "query": {"couponId":"{{couponId}}"},
+        "display": {
+
+        }
+      },
+      "dynamic_params": {
+        "coupon_id": "$.couponId"
+      },
+      "assert": {
+        "$.status": "1"
+      }
+    }
+  ]
+}

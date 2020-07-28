@@ -1,0 +1,279 @@
+{
+  "name": "自定义运营位并上线",
+  "desc": "1. 运营管理后台登陆;\n 2. 创建运营位模块\n 3. 获取最新创建的运营位模块ID\n 4.获取最新创建的运营位模块详情\n 5. 在运营位模块下创建运营元素\n 6. 客户端请求运营位位",
+  "owner": "shifang",
+  "session_params": {
+    "username": "十方",
+    "password": "5450c81b08c7ca30b20f67cc9c372769",
+    "business_element_spm": "567898765",
+    "app_installtime": "1561020100",
+    "cate_id": "0",
+    "channel_name": "Huawei",
+    "client_id": "3",
+    "device_id": "1",
+    "gender": "1",
+    "is_installed_taobao": "2",
+    "data_base_table_operation_element": "zhekou_dev.operate_element",
+    "data_base_table_operation_module": "zhekou_dev.operate_module"
+  },
+  "session_suffix_params": {
+    "business_module_title": "十方的运营位模块",
+    "business_module_key": "shifang_business_module_key",
+    "business_element_title": "十方的运营位元素标题",
+    "business_element_subtitle": "十方的运营位元素副标题"
+  },
+  "tag": [
+    "smoke",
+    "func",
+    "category"
+  ],
+  "e2e": [
+
+    {
+      "desc": "数据回收, 删除在数据库里插入的两条数据",
+      "type": "mysql_ops",
+      "dynamic_params": {
+        "coupon_id": "select coupon_id from coupon_product_v2 where coupon_id > (10000+rand()*100*6000000) limit 1"
+      },
+      "assert": {
+        "SELECT `key` FROM {{data_base_table_operation_module}} where module_id = {{business_module_id}}": "{{business_module_key}}"
+      },
+      "sql_command": {
+        "command2": "DELETE FROM {{data_base_table_operation_module}} WHERE module_id = {{business_module_id}}"
+      }
+    },
+    {
+      "desc": "运营管理后台登陆,获取token",
+      "type": "http_request",
+      "request": {
+        "url": "{{business_http_host}}/api/auth/login",
+        "method": "POST",
+        "headers": {
+          "Cookie": "sqkb-sso-dev-token="
+        },
+        "payload": {
+          "username": "{{username}}",
+          "password": "{{password}}"
+        }
+      },
+      "dynamic_params": {
+        "token": "$.data.token"
+      },
+      "assert": {
+        "status_code": 200,
+        "check": {
+          "$.code": 200,
+          "$.message": "操作成功"
+        }
+      }
+    },
+    {
+      "desc": "创建运营位模块",
+      "type": "http_request",
+      "request": {
+        "url": "{{business_http_host}}/api/operate/module/",
+        "method": "POST",
+        "headers": {
+          "Access-Token": "{{token}}",
+          "Cookie": "sqkb-sso-dev-token={{token}}"
+        },
+        "payload": {
+          "module_id": "",
+          "title": "{{business_module_title}}",
+          "key": "{{business_module_key}}",
+          "element_types": "[\"webview\",\"coupon_ids\",\"topic_ids\",\"banner\",\"web_coupon_ids\",\"coupon_shelf\",\"single_coupon\",\"shop_ids\",\"word_list\"]",
+          "element_components": "[\"title\",\"index\",\"element_type\",\"subtitle\",\"extend\",\"publish_time\",\"offline_time\",\"pic\",\"color_num\",\"is_redirect_taobao\",\"is_transparent_header\",\"is_new_webview\",\"header_color\",\"header_height\",\"is_show_title\",\"app_install_time\",\"pic2\",\"pic3\",\"end_version\",\"start_version\",\"channel_name\",\"need_taobao_install\",\"is_ad\",\"tag\",\"gender\",\"client_id\",\"ios_channel_id\",\"web_channel_id\",\"need_taobao_auth\",\"need_login\",\"base_word\",\"web_coupon_ids\",\"specify_trigger_netred_number\",\"bid\",\"ab_test_indexes\",\"position\",\"os_type\",\"show_type\",\"android_channel_id\",\"h5_channel_id\",\"is_need_wx_auth\",\"cate_id\",\"attach\",\"treat_as_background\",\"specify_new_and_old_users\",\"need_bind_mobile\",\"ab_test_key\",\"sec_kill\",\"shop_id\",\"audit_switch\",\"jump_cate_id\",\"filter_group\",\"is_install_pdd\",\"is_install_jd\",\"need_jd_login\",\"black_list\",\"white_list\"]",
+          "show_module": "[]",
+          "module_update_users": [],
+          "module_update_roles": [],
+          "element_create_users": [],
+          "element_create_roles": []
+        }
+      },
+      "assert": {
+        "status_code": 200,
+        "check": {
+          "$.code": 200,
+          "$.message": "操作成功",
+          "$.status": 1
+        }
+      }
+    },
+    {
+      "desc": "获取最新创建的运营位模块ID",
+      "type": "http_request",
+      "request": {
+        "url": "{{business_http_host}}/api/operate/module/",
+        "method": "GET",
+        "headers": {
+          "Access-Token": "{{token}}",
+          "Cookie": "sqkb-sso-dev-token={{token}}"
+        },
+        "payload": {
+        }
+      },
+      "dynamic_params": {
+        "business_module_id": "$.data.data[0].module_id"
+      },
+      "assert": {
+        "status_code": 200,
+        "check": {
+          "$.code": 200,
+          "$.message": "操作成功",
+          "$.status": 1,
+          "$.data.current_page": 1,
+          "$.data.first_page_url": "{{business_http_host}}/operate/module?page=1"
+        }
+      }
+    },
+    {
+      "desc": "获取最新创建的运营位模块详情",
+      "type": "http_request",
+      "request": {
+        "url": "{{business_http_host}}/api/operate/elements/field/{{business_module_id}}",
+        "method": "GET",
+        "headers": {
+          "Access-Token": "{{token}}",
+          "Cookie": "sqkb-sso-dev-token={{token}}"
+        },
+        "payload": {
+        }
+      },
+      "assert": {
+        "status_code": 200,
+        "check": {
+          "$.data.field.ab_domain": true,
+          "$.data.field.ab_test_group": true,
+          "$.data.field.ab_test_indexes": true,
+          "$.data.field.firstpics": true,
+          "$.data.field.ab_test_key": true,
+          "$.data.field.base_word": true,
+          "$.data.field.cate_id": true,
+          "$.data.field.commit_by": true,
+          "$.data.field.element_type": true,
+          "$.data.field.extend": true,
+          "$.data.field.gender": true,
+          "$.data.field.index": true,
+          "$.data.field.is_ad": true,
+          "$.data.field.os_type": true,
+          "$.data.field.pics": true,
+          "$.data.field.subtitle": true,
+          "$.data.field.time": true,
+          "$.data.field.title": true
+        },
+        "$.code": 200,
+        "$.message": "操作成功",
+        "$.status": 1
+      }
+    },
+    {
+      "desc": "在运营位模块下创建运营元素",
+      "type": "http_request",
+      "request": {
+        "url": "{{business_http_host}}/api/operate/element/",
+        "method": "POST",
+        "headers": {
+          "Access-Token": "{{token}}",
+          "Cookie": "sqkb-sso-dev-token={{token}}"
+        },
+        "payload": [
+          {
+            "module_id": "{{business_module_id}}",
+            "element_id": "",
+            "title": "{{business_element_title}}",
+            "subtitle": "{{business_element_subtitle}}",
+            "spm": "{{business_element_spm}}",
+            "color_num": "#000000",
+            "element_type": "webview",
+            "extend": "123123",
+            "is_show_title": 0,
+            "index": "1",
+            "publish_time": "2019-11-04 20:07:38",
+            "offline_time": "2022-11-30 20:10:08",
+            "app_install_time": "2019-11-06 20:10:12",
+            "specify_users": 0,
+            "sec_kill_ids": "",
+            "min_install_time": "",
+            "max_install_time": "",
+            "pic": "http://file.17gwx.com/sqkb/image/2019/11/05/547145dc166d0eec13.jpg",
+            "pic_width": 789,
+            "pic_height": 477,
+            "pic2": "",
+            "pic3": "",
+            "start_version": "",
+            "end_version": "",
+            "channel_name": "123",
+            "is_ad": 0,
+            "need_taobao_install": "{{is_installed_taobao}}",
+            "tag": "rrr",
+            "position": "",
+            "gender": "{{gender}}",
+            "os_type": 0,
+            "client_id": "",
+            "show_type": 1,
+            "need_bind_mobile": 1,
+            "cate_id": "",
+            "base_word": [],
+            "ab_test_indexes": [],
+            "ab_test_key": "",
+            "domain": "",
+            "element_update_users": [],
+            "element_update_roles": [],
+            "attach": {
+              "sec_kill_tab": "1",
+              "bid": "",
+              "ios_channel_id": "",
+              "android_channel_id": "",
+              "web_channel_id": "",
+              "h5_channel_id": "",
+              "web_coupon_ids": "",
+              "treat_as_background": "1",
+              "need_taobao_auth": "1",
+              "is_need_wx_auth": "1",
+              "need_login": "1",
+              "need_jd_login": "1",
+              "audit_switch": "1",
+              "group_key": "qwe",
+              "shop_id": "",
+              "jump_cate_id": "{{cate_id}}",
+              "filter_group": "qwe"
+            },
+            "is_install_apps": {
+              "is_install_jd": 1,
+              "is_install_pdd": 1
+            }
+          }
+        ]
+      },
+      "assert": {
+        "status_code": 200,
+        "check": {
+          "$.code": 200,
+          "$.message": "操作成功",
+          "$.status": 1
+        }
+      }
+    },
+    {
+      "desc": "客户端请求运营位位",
+      "type": "http_request",
+      "request": {
+        "url": "{{http_host}}/operate/elements?module_key={{business_module_key}}",
+        "method": "GET",
+        "headers": {
+        }
+      },
+      "dynamic_params": {
+        "group_id": "$.data"
+      },
+      "assert": {
+        "status_code": 200,
+        "check": {
+          "$.status_code": 1
+        }
+      }
+    }
+
+
+  ]
+}

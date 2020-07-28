@@ -1,0 +1,33 @@
+{
+  "name": "自定义运营位并上线",
+  "desc": "测试demo",
+  "owner": "shifang",
+  "session_params": {
+    "num1": 2,
+    "num2": 1
+  },
+  "session_suffix_params": {
+  },
+  "datetime_params": {
+    "created_time": "$now + 3"
+  },
+  "tag": [
+    "smoke",
+    "func",
+    "category"
+  ],
+  "e2e": [
+    {
+      "desc": "mysql demo",
+      "type": "mysql_ops",
+      "mysql_connection": "{{ks_qa_connection}}",
+      "assert": {
+      },
+      "dynamic_params": {
+        "case_key": "SELECT case_key FROM zhekou_dev.ab_case where case_id = 2"
+      },
+      "sql_command": {
+      }
+    }
+  ]
+}

@@ -1,0 +1,136 @@
+{
+  "name": "kafka事件调试",
+  "desc": "1. 往kafka里插入数据;",
+  "owner": "shifang",
+  "session_params": {
+  },
+  "session_suffix_params": {
+    "item_id": "",
+    "activity_id": "cgdsfxcvj134"
+  },
+  "tag": [
+    "kafka",
+    "func",
+    "category"
+  ],
+  "e2e": [
+    {
+      "desc": "往kafka中插入数据",
+      "type": "kafka_ops",
+      "kafka_topic": "product",
+      "produce": {
+        "message": {
+          "product_info": {
+            "title": "儿童2019秋冬马甲毛毛坎肩小中大童男女宝宝仿濑兔皮草马甲背心潮",
+            "item_id": "{{item_id}}",
+            "pic": "https://img.alicdn.com/bao/uploaded/i4/3434201550/O1CN01rzqLBZ1NJwTFKNVry_!!3434201550.jpg",
+            "platform_id": 1,
+            "month_sales": 0,
+            "post_free": 1,
+            "comm_count": 0,
+            "source_id": 78,
+            "tb_category_id": 50008882,
+            "raw_price": 76.8,
+            "reserve_price": 120,
+            "brand_name": "欧妮玛  ",
+            "brand_alias": "",
+            "commission_rate": 3.5,
+            "commission_type": 4,
+            "video_url": "",
+            "service_promise_ids": "1,2",
+            "props": "{\"\\u57fa\\u672c\\u4fe1\\u606f\":  [{\"\\u54c1\\u724c\":  \"\\u6b27\\u59ae\\u739b  \"},  {\"\\u529f\\u80fd\":  \"\\u8fd0\\u52a8  \"},  {\"\\u6750\\u8d28\":  \"\\u9526\\u7eb6  \"},  {\"\\u5c3a\\u7801\":  \"L  XL  XXL  XXXL  4XL  5XL  \"},  {\"\\u56fe\\u6848\":  \"\\u690d\\u7269\\u82b1\\u5349  \"},  {\"\\u98ce\\u683c\":  \"\\u7b80\\u7ea6  \"},  {\"\\u8170\\u578b\":  \"\\u4e2d\\u8170  \"},  {\"\\u9002\\u7528\\u6027\\u522b\":  \"\\u7537  \"},  {\"\\u989c\\u8272\\u5206\\u7c7b\":  \"9508-3\\u6761\\u88c5-\\u9ed1\\u8272+\\u5496\\u5561+\\u5929\\u84dd  9512-3\\u6761\\u88c5-\\u9ed1\\u8272+\\u5496\\u5561+\\u5929\\u84dd  9516-3\\u6761\\u88c5-\\u7ea2+\\u9752+\\u84dd  9604-3\\u6761\\u88c5-\\u56fe\\u72473\\u8272  9726-3\\u6761\\u88c5-\\u9ed1\\u8272+\\u5496\\u5561+\\u5929\\u84dd\\u3010\\u65e0\\u75d5\\u5de5\\u827a\\u3011  9722-3\\u6761\\u88c5-\\u9ed1\\u8272+\\u9ed1\\u8272+\\u6d45\\u84dd\\u3010\\u7ecf\\u5178\\u7eaf\\u8272\\u3011  9722-3\\u6761\\u88c5-\\u9ed1\\u8272+\\u9ed1\\u8272+\\u9ed1\\u8272\\u3010\\u7ecf\\u5178\\u7eaf\\u8272\\u3011  9722-3\\u6761\\u88c5-\\u6d45\\u84dd+\\u6d45\\u84dd+\\u6d45\\u84dd\\u3010\\u7ecf\\u5178\\u7eaf\\u8272\\u3011  9596-3\\u6761\\u88c5-\\u9ed1\\u8272+\\u5b9d\\u84dd+\\u5496\\u5561\\u3010\\u51b0\\u4e1d\\u7f51\\u5b54\\u3011  9596-3\\u6761\\u88c5-\\u5496\\u5561+\\u5b9d\\u84dd+\\u6df1\\u7070\\u3010\\u51b0\\u4e1d\\u7f51\\u5b54\\u3011  \"},  {\"\\u9762\\u6599\\u4fd7\\u79f0\":  \"\\u5176\\u4ed6  \"},  {\"\\u4e0a\\u5e02\\u65f6\\u95f4\":  \"2016\\u5e74\\u590f\\u5b63  \"},  {\"\\u6b3e\\u53f7\":  \"9508-2  \"},  {\"\\u670d\\u88c5\\u6b3e\\u5f0f\\u7ec6\\u8282\":  \"U\\u51f8\\u8bbe\\u8ba1  \"},  {\"\\u9002\\u7528\\u5bf9\\u8c61\":  \"\\u9752\\u5e74  \"},  {\"\\u6b3e\\u5f0f\":  \"\\u5e73\\u89d2\\u88e4  \"},  {\"\\u9500\\u552e\\u6e20\\u9053\\u7c7b\\u578b\":  \"\\u7eaf\\u7535\\u5546(\\u53ea\\u5728\\u7ebf\\u4e0a\\u9500\\u552e)  \"},  {\"\\u88c6\\u90e8\\u6750\\u8d28\\u6210\\u5206\":  \"\\u518d\\u751f\\u7ea4\\u7ef4\\u7d20\\u7ea4\\u7ef492%  \\u805a\\u6c28\\u916f\\u5f39\\u6027\\u7ea4\\u7ef4(\\u6c28\\u7eb6)8%  \"},  {\"\\u5927\\u8eab\\u6750\\u8d28\\u6210\\u5206\":  \"\\u805a\\u9170\\u80fa\\u7ea4\\u7ef4(\\u9526\\u7eb6)85%  \\u805a\\u6c28\\u916f\\u5f39\\u6027\\u7ea4\\u7ef4(\\u6c28\\u7eb6)15%  \"},  {\"\\u6761\\u6570\":  \"3\\u6761  \"}]}",
+            "prop_value_ids": "848",
+            "pics": [
+              "https://img.alicdn.com/bao/uploaded/i4/3434201550/O1CN01rzqLBZ1NJwTFKNVry_!!3434201550.jpg",
+              "https://img.alicdn.com/i2/3434201550/O1CN01axZMBZ1NJwTEFU0nq_!!3434201550.jpg",
+              "https://img.alicdn.com/i2/3434201550/O1CN0130QFNF1NJwTFmht4w_!!3434201550.jpg",
+              "https://img.alicdn.com/i3/3434201550/O1CN01iaeyT71NJwTDVi2BT_!!3434201550.jpg",
+              "https://img.alicdn.com/i4/3434201550/O1CN01VqRIUn1NJwTLgCoRs_!!3434201550.jpg"
+            ],
+            "desc_pics": [],
+            "prop_info": {
+              "品牌": "欧妮玛 ",
+              "功能": "运动 ",
+              "材质": "锦纶 ",
+              "尺码": [
+                "L",
+                "XL",
+                "XXL"
+              ],
+              "图案": "植物花卉 ",
+              "风格": "简约 ",
+              "腰型": "中腰 ",
+              "适用性别": "男 ",
+              "颜色分类": [
+                "9508-黑色",
+                "9512-咖啡",
+                "9516-天蓝",
+                "9722-浅蓝",
+                "9596-宝蓝",
+                "9596-深灰"
+              ],
+              "面料俗称": "其他 ",
+              "上市时间": "2016年夏季 ",
+              "款号": "9508-2 ",
+              "服装款式细节": "U凸设计 ",
+              "适用对象": "青年 ",
+              "销售渠道类型": "纯电商(只在线上销售) ",
+              "裆部材质成分": "再生纤维素纤维92% 聚氨酯弹性纤维(氨纶)8% ",
+              "大身材质成分": "聚酰胺纤维(锦纶)85% 聚氨酯弹性纤维(氨纶)15% ",
+              "条数": "3条 "
+            },
+            "subtitle": "",
+            "white_image": "",
+            "is_zk": 0,
+            "category_name": "内裤",
+            "level_one_category_id": 1625,
+            "level_one_category_name": "女士内衣/男士内衣/家居服",
+            "track_url": "http://s.click.taobao.com/t?e=m%3D2%26s%3DiGd0Q27wByAcQipKwQzePOeEDrYVVa64r4ll3HtqqoxyINtkUhsv0PK9QftV4%2Fc8ZFSAle183xjJXm2zsK3KTMtR7x%2B%2FJa%2FUvdAp0w1Lx9zFAsagcagpmcRQXCWCjhBSSD99OVE0eUgGmqJlxpmKB8Jse%2FDBB4C7%2FVJqtNeEg5OyAilzVYVmIivXtY%2B2Lf8rBsi5mH3e%2FRuToWMTxPy5I8Yl7w3%2FA2kb&scm=null&pvid=100_11.8.223.179_106396_3291560553130226862&app_pvid=59590_11.182.64.144_975_1560553130222&ptl=floorId:2836;pvid:100_11.8.223.179_106396_3291560553130226862;app_pvid:59590_11.182.64.144_975_1560553130222&xId=JGWyEwu7fTsQVLO0KZMAoFu7WGTCJ4uovMPRn25yr7MtDH1vCxcA226dhVfiXhFCJ8R07LGKQebb3XEN7Se1mj&union_lens=lensId:0bb64090_0bee_16b583708fb_2e99",
+            "is_recommend": 1
+          },
+          "ticket_info": {
+            "activity_id": "{{activity_id}}",
+            "coupon_url": "https://uland.taobao.com/coupon/edetail?e=cxH803%2FIw34NfLV8niU3RwXoB%2BDaBK5LQS0Flu%2FfbSpinP2GYChM67sPlpg2KVNfy5FOJP2gSFX%2FjE4MyFlOrEIlBWc40cWOE4o3cok5p76Ia74mOygIDY%2Fq4f1wW5gQL7mtMaOvr7BUyZAhaN1tfVecV8nS7f3JmFeloP1ePvv42LkcNSiF4qb35Pqxl%2B4pHF%2FD69arFX%2FUt4R808lPkwzUv%2BYStry7fjh37OZy0Bg%3D&&app_pvid=59590_11.182.64.144_975_1560553130222&ptl=floorId:2836;app_pvid:59590_11.182.64.144_975_1560553130222;tpp_pvid:100_11.8.223.179_106396_3291560553130226862&xId=JGWyEwu7fTsQVLO0KZMAoFu7WGTCJ4uovMPRn25yr7MtDH1vCxcA226dhVfiXhFCJ8R07LGKQebb3XEN7Se1mj&union_lens=lensId:0bb64090_0bee_16b583708fb_2e99",
+            "coupon_price": 5,
+            "start_fee": 58,
+            "url_type": 2,
+            "coupon_start_time": 1573551312,
+            "coupon_end_time": 1574678012,
+            "total_num": 9999,
+            "remain_num": 9668,
+            "ticket_source_id": 78
+          },
+          "shop_info": {
+            "platform_shop_id": "113574442",
+            "shop_seller_id": "2219855167",
+            "shop_name": "欧妮玛服饰旗舰店",
+            "shop_url": "http://shop113574442.taobao.com",
+            "shop_rank": 0,
+            "shop_score": "4.7#3|4.7#3|4.7#3",
+            "shop_score_avg": 4.7,
+            "shop_logo": "http://img.alicdn.com/imgextra//aa/bd/TB1k2DpJpXXXXcAXpXXSutbFXXX.jpg",
+            "shop_nick": "欧妮玛服饰旗舰店",
+            "shop_is_golden": 0,
+            "shop_tag": 0
+          },
+          "activity_info": {
+            "activity_online_time": 0,
+            "activity_start_time": 0,
+            "activity_end_time": 0,
+            "activity_price": 0,
+            "activity_type": 0,
+            "activity_stock": 0,
+            "activity_saled": 0
+          },
+          "msg_type": "save_all",
+          "create_time": 1573551312
+        }
+      }
+    },
+    {
+      "desc": "等待5秒钟, 等待kafka中的数据被消费",
+      "type": "wait",
+      "duration": 5
+    }
+  ]
+}
