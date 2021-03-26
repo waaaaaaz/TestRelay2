@@ -20,7 +20,7 @@ pbr==5.4.3
 ply==3.11
 protobuf==3.10.0
 PyMySQL==0.9.3
-PyYAML==5.1.2
+PyYAML==5.4
 records==0.5.3
 requests==2.22.0
 six==1.12.0
